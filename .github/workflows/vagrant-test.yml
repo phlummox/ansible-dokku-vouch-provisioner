@@ -97,22 +97,26 @@ jobs:
         ANSIBLE_FORCE_COLOR: '1'
       run: |
         set -x
-        export PATH=~/.local/bin:$PATH
-        brew install gnu-time
-        export PATH="$(brew --prefix)/opt/gnu-time/libexec/gnubin:$PATH"
-        ls -al ~/.local/lib/python*/site-packages/ || true
-        set -euo pipefail
-        curr_dir=$PWD
-        cd ansible-roles
-        make run_tests_vbx
-        cd $curr_dir
+        mkdir nested-vma
+        cp .ci-scripts/nested/Vagrantfile nested-vm
+        cd nested-vm
+        vagrant up --provider virtualbox
+        #export PATH=~/.local/bin:$PATH
+        #brew install gnu-time
+        #export PATH="$(brew --prefix)/opt/gnu-time/libexec/gnubin:$PATH"
+        #ls -al ~/.local/lib/python*/site-packages/ || true
+        #set -euo pipefail
+        #curr_dir=$PWD
+        #cd ansible-roles
+        #make run_tests_vbx
+        #cd $curr_dir
 
-        # ansible-lint all files
-        ./lint-the-files.sh
-        # also do plain yamllint
-        yamllint -c .yamllint $(find `ls | grep -v install-ansible` -name '*.yml' -o -name '*.yaml')
+        ## ansible-lint all files
+        #./lint-the-files.sh
+        ## also do plain yamllint
+        #yamllint -c .yamllint $(find `ls | grep -v install-ansible` -name '*.yml' -o -name '*.yaml')
 
-        set +e
-        ls -al ~/.local/lib/python*/site-packages/ || true
+        #set +e
+        #ls -al ~/.local/lib/python*/site-packages/ || true
 
 # vim: ts=2 sw=2 et :

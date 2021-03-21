@@ -1,0 +1,68 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+
+  config.vm.box = "generic/ubuntu1804"
+
+  # config.vm.network "forwarded_port", guest: 80, host: 8080
+
+  # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+
+  # config.vm.network "private_network", ip: "192.168.33.10"
+
+  # config.vm.network "public_network"
+
+  config.vm.provider "virtualbox" do |prov|
+    # Enable KVM nested virtualization
+    prov.nested = true
+    prov.cpu_mode = "host-model"
+    prov.memory = "2048"
+    prov.management_network_name = 'vagrant-prov-new'
+    prov.management_network_address = '192.168.124.0/24'
+  end
+
+  # View the documentation for the provider you are using for more
+  # information on available options.
+
+  # Enable provisioning with a shell script. Additional provisioners such as
+  # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
+  # documentation for more information about their specific syntax and use.
+  config.vm.provision "shell", inline: <<-SHELL
+     set -ex
+     sudo apt-get update
+     VAGRANT_VERSION="2.2.14"
+     curl -L https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_x86_64.deb > vagrant.deb
+      sudo apt install $PWD/vagrant.deb
+      sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt-get install \
+    -y --no-install-recommends \
+        apt-transport-https         \
+        bridge-utils                \
+        build-essential             \
+        bzip2                       \
+        ca-certificates             \
+        curl                        \
+        git                         \
+        libguestfs-tools            \
+        libvirt-bin                 \
+        libvirt-dev                 \
+        libxml2-dev                 \
+        libxslt-dev                 \
+        locales                     \
+        make                        \
+        qemu-kvm                    \
+        ruby-dev                    \
+        software-properties-common  \
+        sudo                        \
+        tar                         \
+        unzip                       \
+        wget                        \
+        xz-utils                    \
+        zlib1g-dev                  \
+        zip'
+      CONFIGURE_ARGS="with-libvirt-include=/usr/include/libvirt with-libvirt-lib=/usr/lib"     vagrant --debug plugin install --verbose         vagrant-libvirt
+      sudo adduser $USER libvirt
+  SHELL
+end
