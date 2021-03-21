@@ -55,8 +55,10 @@ jobs:
       run: |
         set -x
         set -euo pipefail
+        ssh --version
         ssh-keygen -f ~/.ssh/id_rsa -P ""
         cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+        ssh localhost ls /
 
     - name: Run tests
       # force colors for molecule and ansible, even
