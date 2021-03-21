@@ -17,6 +17,15 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-vagrant-
 
+    - name: Cache pip download dir
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/Library/Caches/pip
+        key: ${{ runner.os }}-python-${{ hashFiles('install-ansible/requirements.in') }}
+        restore-keys: |
+          ${{ runner.os }}-python-
+
     - name: Cache python libs
       uses: actions/cache@v2
       with:
@@ -31,7 +40,7 @@ jobs:
         python-version: '3.x'
         #architecture: 'x64' # Defaults to x64
 
-    - name: Show tool versions
+    brary/Caches/pip/- name: Show tool versions
       run: |
         set -euo pipefail
         set -x
@@ -42,7 +51,7 @@ jobs:
         vboxmanage --version
         brew --version
 
-    - name: Run vagrant up
+    - name: Run tests
       run: |
         set -x
         export PATH=~/.local/bin:$PATH
