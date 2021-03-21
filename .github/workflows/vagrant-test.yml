@@ -87,7 +87,7 @@ jobs:
         sudo ls -al /var/log || true
         sudo cat /var/log/system.log | grep -i -E 'auth|ssh' || true
         sudo grep ssh /var/log/secure.log || true
-        false
+        #false
 
     - name: Run tests
       # force colors for molecule and ansible, even
