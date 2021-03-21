@@ -12,7 +12,8 @@ ACTIVATE=\
 py_prereqs:
 	set -ex; \
 	$(ACTIVATE) ; \
-	pip install pip-tools; \
+	pip install --user --upgrade pip wheel; \
+	pip install --user --upgrade pip-tools; \
 	pip-compile requirements.in; \
-	pip install -r requirements.txt
+	pip install --user -r requirements.txt
 
