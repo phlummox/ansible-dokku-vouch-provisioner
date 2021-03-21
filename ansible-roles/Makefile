@@ -10,7 +10,7 @@
 SHELL=bash
 
 ROLES_TO_TEST=$(shell find * -mindepth 0 -maxdepth 0 -type d | grep -v shared)
-ROLES_TO_TEST=demo dokku.install dokku.configure
+ROLES_TO_TEST=demo dokku.install dokku.configure dokku.apps.clone-and-push
 
 # whether to use a virtualenv.
 #
@@ -26,7 +26,7 @@ ANSIBLE_LIBRARY=$$PWD/../ansible-lib/modules
 ANSIBLE_ACTION_PLUGINS=$$PWD/../ansible-lib/plugins/action
 
 #VERBOSITY=--debug -vvv
-VERBOSITY=-v
+#VERBOSITY=
 
 TIMER=if which time; then export timer="`which time` -v"; else export timer=""; fi
 
