@@ -59,13 +59,13 @@ jobs:
         ssh-keygen -f ~/.ssh/id_rsa -P ""
         cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
         ls -al ~/.ssh
-	echo "show id"
+        : "show id"
         id
-        echo "configure ssh"
+        : "configure ssh"
         cat > sshd_config <<EOF
         SyslogFacility AUTHPRIV
         PermitRootLogin yes
-        AuthorizedKeysFile	.ssh/authorized_keys
+        AuthorizedKeysFile  .ssh/authorized_keys
         PasswordAuthentication yes
         ChallengeResponseAuthentication no
         UseDNS no
