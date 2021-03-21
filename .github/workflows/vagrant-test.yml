@@ -78,7 +78,7 @@ jobs:
         ssh_opts="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
         ssh -vvvv $ssh_opts localhost ls / || true
         sudo ls -al /var/log || true
-        sudo cat /var/log/system.log || true
+        sudo cat /var/log/system.log | grep -i -E 'auth|ssh' || true
         false
 
     - name: Run tests
