@@ -20,7 +20,7 @@ ROLES_TO_TEST=demo
 # instead, pip packages will get installed to ~/.local so
 # we can cache them.
 # (both GitHub and GitLab set the var "CI" to true")
-SHOULD_USER_VIRTUALENV=$(shell if [ -z "$CI" ] ; then echo true; fi)
+SHOULD_USE_VIRTUALENV=$(shell if [ -z "$CI" ] ; then echo true; fi)
 
 ANSIBLE_LIBRARY=$$PWD/../ansible-lib/modules
 ANSIBLE_ACTION_PLUGINS=$$PWD/../ansible-lib/plugins/action
@@ -75,7 +75,7 @@ install_vagrant_dokku_box:
 run_tests_vbx:
 	set -euo pipefail; \
 	set -x; \
-	export SHOULD_USER_VIRTUALENV="$(SHOULD_USER_VIRTUALENV)"; \
+	export SHOULD_USE_VIRTUALENV="$(SHOULD_USE_VIRTUALENV)"; \
 	export ANSIBLE_LIBRARY="$(ANSIBLE_LIBRARY)"; \
 	export ANSIBLE_ACTION_PLUGINS="$(ANSIBLE_ACTION_PLUGINS)"; \
 	export PROVIDER_MEMORY="$(PROVIDER_MEMORY)"; \
@@ -90,7 +90,7 @@ run_tests_vbx:
 run_tests_libvirt:
 	set -euo pipefail; \
 	set -x; \
-	export SHOULD_USER_VIRTUALENV="$(SHOULD_USER_VIRTUALENV)"; \
+	export SHOULD_USE_VIRTUALENV="$(SHOULD_USE_VIRTUALENV)"; \
 	export ANSIBLE_LIBRARY="$(ANSIBLE_LIBRARY)"; \
 	export ANSIBLE_ACTION_PLUGINS="$(ANSIBLE_ACTION_PLUGINS)"; \
 	export PROVIDER_MEMORY="$(PROVIDER_MEMORY)"; \
