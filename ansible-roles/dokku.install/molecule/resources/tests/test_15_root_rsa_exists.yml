@@ -1,0 +1,8 @@
+---
+file:
+  /root/.ssh/id_rsa:
+    exists: true
+    owner: root
+    group: root
+    filetype: file
+    contains: ["BEGIN OPENSSH PRIVATE KEY"]

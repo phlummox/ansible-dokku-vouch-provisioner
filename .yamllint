@@ -1,0 +1,11 @@
+---
+extends: default
+rules:
+  line-length: disable
+  empty-lines: disable
+  comments: disable
+  comments-indentation: disable
+  colons: disable
+  indentation: disable
+  truthy:
+    level: error

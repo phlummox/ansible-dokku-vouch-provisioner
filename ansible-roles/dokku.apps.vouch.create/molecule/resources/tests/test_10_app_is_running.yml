@@ -1,0 +1,9 @@
+---
+command:
+  dokku_ps_report_vouch:
+    exit-status: 0
+    exec: "dokku ps:report vouch"
+    stdout:
+    - "/^\\s*Running:\\s+true/"
+    timeout: 24000  # in msecs
+    skip: false

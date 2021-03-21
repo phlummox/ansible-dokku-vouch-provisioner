@@ -1,0 +1,10 @@
+---
+http:
+  http://localhost:
+    status: 410
+    timeout: 6000 # in milliseconds
+    skip: false
+  http://dokku-install-test-vm:
+    status: 410
+    timeout: 6000 # in milliseconds
+    skip: false

@@ -1,0 +1,17 @@
+---
+galaxy_info:
+  author: phlummox
+  description: role to configure dokku
+  license: MIT
+  min_ansible_version: 2.1
+
+  platforms:
+   - name: Ubuntu
+     versions:
+     - all
+
+  galaxy_tags: ["dokku", "web"]
+    # List tags for your role here, one per line. A tag is a keyword that describes
+    # and categorizes the role. Users find roles by searching for tags.
+
+dependencies: []

@@ -1,0 +1,38 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: vagrant
+  provider:
+    name: ${PROVIDER_NAME}
+    type: ${PROVIDER_TYPE}
+    options:
+      memory: ${PROVIDER_MEMORY}
+      cpus: 2
+platforms:
+  - name: dokku-install-test-vm
+    box: ${PLATFORM_BOX}
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      stdout_callback: yaml
+verifier:
+  name: goss
+  directory: ../resources/tests
+scenario:
+  # removed idempotence and
+  # side effects from test_sequence:
+  test_sequence:
+    - dependency
+    - lint
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - verify
+    - cleanup
+    - destroy
+

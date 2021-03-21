@@ -1,0 +1,9 @@
+---
+command:
+  docker:
+    exit-status: 0
+    exec: "docker -D run --rm hello-world"
+    stdout:
+    - "Hello from Docker"
+    timeout: 24000 # in msecs
+    skip: false

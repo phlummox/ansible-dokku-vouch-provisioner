@@ -1,0 +1,36 @@
+---
+- hosts: default
+  become: true
+  become_method: sudo
+  tasks:
+
+    - name: set /etc/hostname
+      copy:
+        dest: "/etc/hostname"
+        force: true
+        content: "ubuntu-dokku\n"
+
+    - name: set welcome message
+      copy:
+        dest: "/etc/motd"
+        force: true
+        content: |
+          Welcome to ubuntu-dokku version 0.1, running on Ubuntu 20.04
+
+
+    - name: set localhost name
+      shell: |
+        sed -i 's/ubuntu2004/ubuntu-dokku/g' /etc/hosts
+
+    - name: Run the demo role
+      include_role:
+        name: demo
+    - name: Run the dokku.install role
+      include_role:
+        name: dokku.install
+      vars:
+        DOKKU_SERVER_HOST_NAME: "ubuntu-dokku"
+    - name: Run the dokku.configure role
+      include_role:
+        name: "dokku.configure"
+

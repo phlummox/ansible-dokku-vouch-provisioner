@@ -1,0 +1,17 @@
+---
+- name: converge
+  hosts: all
+  become: true
+  become_method: sudo
+  tasks:
+    - name: Run dokku.install
+      include_role:
+        name: dokku.install
+      vars:
+        DOKKU_SERVER_HOST_NAME: "dokku-install-test-vm"
+
+    - name: Run dokku.configure
+      include_role:
+        name: dokku.configure
+      vars:
+        DOKKU_SERVER_HOST_NAME: "dokku-install-test-vm"

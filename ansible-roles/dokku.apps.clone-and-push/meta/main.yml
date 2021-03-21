@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  author: phlummox
+  description: role to clone some git repo to the localhost, then push it to dokku
+  license: MIT
+  min_ansible_version: 2.1
+
+  platforms:
+   - name: Ubuntu
+     versions:
+     - all
+
+  galaxy_tags: ["dokku", "web", "git", "vcs"]
+
+dependencies: []

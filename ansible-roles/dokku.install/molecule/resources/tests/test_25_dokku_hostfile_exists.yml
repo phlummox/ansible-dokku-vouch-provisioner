@@ -1,0 +1,9 @@
+---
+command:
+file:
+  /home/dokku/HOSTNAME:
+    exists: true
+    owner: dokku
+    group: dokku
+    filetype: file
+    contains: ["dokku-install-test-vm"]

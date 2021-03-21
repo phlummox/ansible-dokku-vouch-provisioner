@@ -1,0 +1,9 @@
+---
+# tasks file for dokku.clone-repo-and-push
+
+- name: call module
+  dokku_push:
+    app_name: "{{ app_name }}"
+    repo_url: "{{ repo_url }}"
+    branch: "{{ branch }}"
+    force: "{{ force }}"

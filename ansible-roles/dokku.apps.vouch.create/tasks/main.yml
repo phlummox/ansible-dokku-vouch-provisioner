@@ -1,0 +1,219 @@
+---
+
+# returns exit code of grep: 0 == success,
+# already exists.
+- name: whether app already exists
+  register: whether_app_already_exists
+  shell: |
+    set -euo pipefail
+    set -x
+    dokku apps:list | tail -n +2 | grep "{{ appname }}"
+  args:
+    executable: /bin/bash
+  changed_when: false
+  # exit code should normally be 0 (success) or 1,
+  # 2 means an actual failure/error
+  failed_when: whether_app_already_exists.rc == 2
+
+- name: "did vouch already exist"
+  changed_when: false
+  debug:
+    msg: |
+      vouch app {{ appname }} already existed: {{ whether_app_already_exists.rc == 0 }}
+
+# might be better actually to re-create apps
+# afresh - then we at least know what state they're in
+- name: create app
+  when: whether_app_already_exists.rc == 1
+  shell: |
+    dokku apps:create "{{ appname }}"
+
+# we claim that if app exists,
+# this isn't a change to the system ...
+# and it won't be, as long as appname has its
+# default value
+- name: configure app
+  changed_when: "whether_app_already_exists.rc == 1"
+  shell: |
+    set -euo pipefail
+    set -x
+    dokku proxy:ports-add "{{ appname }}" http:80:9090
+    dokku proxy:ports-add "{{ appname }}" http:9090:9090
+    dokku config:set --no-restart "{{ appname }}" \
+            DOKKU_LETSENCRYPT_EMAIL="{{ contact_email }}"
+    dokku config:set --no-restart "{{ appname }}" \
+            DOKKU_LETSENCRYPT_SERVER="{{ letsencrypt_type }}";
+    dokku config:set --no-restart "{{ appname }}" \
+            VOUCH_PORT=9090
+  args:
+    executable: /bin/bash
+
+- name: create vouch env file
+  # If file already exists, it's overwritten
+  # (force: yes)
+  register: create_vouch_env_file
+  copy:
+    dest: "/root/vouch-env"
+    force: true
+    mode: "u=rw"
+    # if debugging -- might temporarily want to set:
+    #  VOUCH_ALLOWALLUSERS=true
+    content: |
+      OAUTH_CALLBACK_URL="https://{{ appname }}.{{ ansible_host }}/auth"
+      VOUCH_TESTING="{{ vouch_testing }}"
+      VOUCH_COOKIE_SECURE=false
+      VOUCH_COOKIE_SAMESITE=lax
+      VOUCH_LOGLEVEL="{{ vouch_loglevel }}"
+      VOUCH_LISTEN=0.0.0.0
+      VOUCH_COOKIE_DOMAIN=".{{ ansible_host }}"
+      VOUCH_ALLOWALLUSERS=false
+      VOUCH_DOMAINS="{{ ansible_host }}"
+      VOUCH_WHITELIST="{{ vouch_whitelist }}"
+      VOUCH_PORT=9090
+      # cookie maxage in secs. Apparently can't be longer
+      # than VOUCH_JWT_MAXAGE.
+      # 3 days
+      # 24 * 3 * 60 * 60 = 259200
+      VOUCH_COOKIE_MAXAGE=259200
+      # number of minutes until jwt expires.
+      # default 240mins=4hrs
+      VOUCH_JWT_MAXAGE=4320
+
+- name: set vouch env vars from env file
+  #when: create_vouch_env_file.changed
+  changed_when: true
+  shell: |
+    set -euo pipefail;
+    set -x
+    cat /root/vouch-env | grep -v '^#' |
+      xargs -I"{}" bash -c '
+        dokku config:set --no-restart {{ appname }} {}'
+  args:
+    executable: /bin/bash
+
+- name: create vouch secret-env file
+  # If file already exists, it's overwritten
+  register: create_vouch_secret_env_file
+  copy:
+    dest: "/root/secret-env"
+    mode: "u=rw"
+    force: true
+    content: "{{ oauth_provider_secret }}"
+  #no_log: true
+
+- name: set vouch env vars for oauth provider file
+  #when: create_vouch_secret_env_file.changed
+  changed_when: true
+  shell: |
+    set -euo pipefail;
+    cat /root/secret-env | grep -v '^#' |
+      xargs -I"{}" bash -c '
+        dokku config:set --no-restart {{ appname }} {}'
+  args:
+    executable: /bin/bash
+  #no_log: true
+
+- name: Create clone-repo dir
+  become: false
+  tempfile:
+    state: directory
+    prefix: "ansible-clone-repo-"
+  register: clone_repo_dir
+  delegate_to: localhost
+
+- name: create clone repo script
+  become: false
+  register: clone_repo_file
+  copy:
+    src: "clone-repo.sh"
+    dest: "{{ clone_repo_dir.path }}"
+    force: true
+    mode: "a+rx"
+  delegate_to: localhost
+
+- name: get user home directory
+  become: false
+  shell: >
+         echo $HOME
+  changed_when: false
+  register: user_home
+  delegate_to: localhost
+
+- name: user's home dir
+  debug:
+    var: user_home.stdout
+
+- name: copy own public ssh key to remote host
+  copy:
+    src: "{{ user_home.stdout }}/.ssh/id_rsa.pub"
+    dest: "/tmp/id_rsa.pub"
+    mode: "u=rw"
+    force: true
+
+- name: add own public SSH key to dokku user
+  changed_when: false
+  shell: |
+    set -euo pipefail
+    set -x
+    auth_file=/home/dokku/.ssh/authorized_keys
+    ls -al $auth_file
+    cat /tmp/id_rsa.pub | tee -a $auth_file
+    chmod go-rwx $auth_file
+  args:
+    executable: /bin/bash
+
+# we _could_ just clone this on the host itself,
+# and push to localhost, after setting appropriate
+# keys.
+#
+# current approach is:
+#   This gets run on the _local_ host, but pushed to
+#       ansible_play_hosts[0],
+#   which should be the remote host.
+- name: prepare app repo and push
+  become: false
+  changed_when: "whether_app_already_exists.rc == 1"
+  shell: |
+    set -euo pipefail;
+    set -x
+    repo="git@github.com:phlummox/dokku-vouch-app.git"
+    script="{{ clone_repo_dir.path }}"/clone-repo.sh
+    remote_host="{{ hostvars[ansible_play_hosts[0]].ansible_host }}"
+    $script "{{ appname }}" $repo $remote_host --force
+  delegate_to: localhost
+  args:
+    executable: /bin/bash
+
+- name: configure vouch with letsencrypt
+  when:  "use_letsencrypt"
+  shell: |
+    dokku letsencrypt "{{ appname }}"
+
+- name: whether to do vouch-auth plugin install
+  register: vouch_auth_plugins
+  changed_when: false
+  shell: |
+    set -euo pipefail;
+    set -x
+    if (dokku plugin:list | awk '{ print $1; }' |
+            grep vouch-auth >/dev/null); then
+      echo yes;
+    else
+      echo no;
+    fi
+  args:
+    executable: /bin/bash
+
+- name: do the actual vouch-auth plugin install
+  shell: |
+    dokku plugin:install https://github.com/phlummox/dokku-vouch-auth
+  when: vouch_auth_plugins.stdout != "yes"
+
+# really, we only need to do this if this was
+# a *reinstall* rather than an install. But we might
+# also have changed something in the repo ...
+# so easiest to do it every time.
+- name: restart app
+  changed_when: false
+  shell: |
+    dokku ps:restart "{{ appname }}"

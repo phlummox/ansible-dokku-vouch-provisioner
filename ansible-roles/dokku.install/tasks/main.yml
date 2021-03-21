@@ -1,0 +1,211 @@
+---
+- name: run "apt-get update" if older than 1 day
+  apt:
+    update_cache: true
+    cache_valid_time: 86400 # in secs
+
+- name: "install prereqs"
+  become: true
+  become_method: sudo
+  register: apt_install_prereqs
+  args:
+    warn: false
+  shell: |
+    set -ex
+    DEBIAN_FRONTEND=noninteractive TZ=Australia/Perth apt-get  install -y --no-install-recommends \
+      apt-transport-https             \
+      bzip2                           \
+      ca-certificates                 \
+      curl                            \
+      gnupg                           \
+      gnupg-agent                     \
+      lsb-base                        \
+      lsb-release                     \
+      openssh-client                  \
+      openssh-server                  \
+      openssh-server                  \
+      software-properties-common      \
+      sudo                            \
+      tzdata                          \
+      wget
+  changed_when: false
+  # parsing output didn't work
+
+- name: Add docker apt-key
+  apt_key:
+    url: "https://download.docker.com/linux/ubuntu/gpg"
+    state: present
+
+- name: "set up docker ubuntu repo"
+  become: true
+  become_method: sudo
+  args:
+    warn: false
+    #creates: /etc/apt/sources.list.d/docker.list.save
+  changed_when: false
+  shell: |
+    add-apt-repository \
+     "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+     $(lsb_release -cs) \
+     stable"
+
+- name: docker-ce installed
+  apt:
+    pkg:
+      - docker-ce
+    state: present
+
+- name: Add dokku apt-key
+  apt_key:
+    url: "https://packagecloud.io/dokku/dokku/gpgkey"
+    state: present
+
+- name: "set up dokku ubuntu repo"
+  become: true
+  become_method: sudo
+  register: dokku_repo_added
+  args:
+    warn: false
+    executable: "/bin/bash"
+    creates: /etc/apt/sources.list.d/dokku.list
+  shell: |
+    set -euo pipefail
+    set -x
+    echo 'deb https://packagecloud.io/dokku/dokku/ubuntu/ focal main' | \
+      tee -a /etc/apt/sources.list.d/dokku.list
+
+    export SOURCE="https://packagecloud.io/dokku/dokku/ubuntu/"
+    export OS_ID="$(lsb_release -cs 2>/dev/null || echo "bionic")"
+    echo "xenial bionic focal" | grep -q "$OS_ID" || OS_ID="bionic"
+    echo "deb $SOURCE $OS_ID main" | tee /etc/apt/sources.list.d/dokku.list
+
+- name: run "apt-get update" # noqa no-handler
+  apt:
+    update_cache: true
+  when: dokku_repo_added.changed
+
+- name: "create root .ssh key if not exist"
+  become: true
+  become_method: sudo
+  args:
+    executable: "/bin/bash"
+    creates: /root/.ssh/id_rsa
+  shell: |
+    set -x
+    set -euo pipefail
+    if [ ! -f /root/.ssh/id_rsa ] ; then
+      ssh-keygen -t rsa -f /root/.ssh/id_rsa -q -N "";
+    fi
+
+# set options for non-interactive install
+# (see docco at
+# http://dokku.viewdocs.io/dokku/getting-started/install/debian/#debconf-options
+# and at
+# http://dokku.viewdocs.io/dokku/getting-started/advanced-installation/#configuring-an-unattended-installation
+#
+# ultimately hostname should end up in
+#    /home/dokku/HOSTNAME
+# and probably
+#    /home/dokku/VHOST
+- name: "configure dokku non-interactive install"
+  become: true
+  become_method: sudo
+  changed_when: false
+  args:
+    #warn: no
+    executable: "/bin/bash"
+  shell: |
+    set -euo pipefail
+    set -x
+
+    echo "dokku dokku/web_config boolean false"   | debconf-set-selections
+    echo "dokku dokku/vhost_enable boolean true"  | debconf-set-selections
+    echo "dokku dokku/nginx_enable boolean true"  | debconf-set-selections
+    echo "dokku dokku/skip_key_file boolean true" | debconf-set-selections
+
+    export DOKKU_SERVER_HOST_NAME="{{ DOKKU_SERVER_HOST_NAME }}"
+
+    # Use the same SSH key for root and the dokku user
+    echo "dokku dokku/key_file string /root/.ssh/id_rsa.pub" | debconf-set-selections
+
+    # We will supply hostname via variable
+    echo "dokku dokku/hostname string ${DOKKU_SERVER_HOST_NAME}" | debconf-set-selections
+
+
+- name: "report dokku hostname to be used"
+  changed_when: false
+  debug:
+    msg: System {{ inventory_hostname }} will use dokku hostname {{ DOKKU_SERVER_HOST_NAME }}
+
+- name: Gather facts as to what packages are installed
+  changed_when: false
+  package_facts:
+    manager: auto
+
+- name: Record whether dokku was needed
+  set_fact: dokku_wasnt_installed="{{ 'dokku' not in ansible_facts.packages }}"
+
+- name: "was dokku already installed?"
+  changed_when: false
+  debug:
+    msg: |
+      System {{ inventory_hostname }} needed dokku: {{ dokku_wasnt_installed }}
+
+
+# technically, we need only re-install when the debconf variables
+# above have changed since original installation.
+#   How do we find out when those have changed? We could
+# install "debconf-utils" (`sudo apt install debconf-utils`), which
+# lets us find out ... but quick and dirty way is to just always
+# reinstall.
+#
+# And we will claim we've "made a change" when dokku wasn't previously
+# in the system; tho actually, we might've changed the debconf
+# variables.
+- name: "force-reinstall dokku"
+  become: true
+  become_method: sudo
+  shell: |
+    apt-get install -y --no-install-recommends --reinstall dokku
+  args:
+    warn: false
+  changed_when: "dokku_wasnt_installed"
+
+# prob not needed
+- name: "install dokku core plugins"
+  become: true
+  become_method: sudo
+  shell: |
+    dokku plugin:install-dependencies --core
+  changed_when: false
+
+- name: whether letsencrypt plugin already installed
+  changed_when: false
+  register: whether_letsencrypt_plugin_installed
+  args:
+    executable: "/bin/bash"
+  shell: |
+      set -euo pipefail
+      set -x
+      if (dokku plugin:list | awk '{ print $1; }' |
+              grep letsencrypt >/dev/null); then
+        echo yes;
+      else
+        echo no;
+      fi
+
+- name: "install dokku letsencrypt plugin (if needed)"
+  become: true
+  become_method: sudo
+  when: whether_letsencrypt_plugin_installed.stdout != "yes"
+  args:
+    creates:  /var/lib/dokku/plugins/available/letsencrypt/plugin.toml
+  shell: |
+    dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git
+
+- name: "dokku letsencrypt autorenew"
+  become: true
+  become_method: sudo
+  changed_when: false
+  shell: |
+    dokku letsencrypt:cron-job --add  # To auto-renew SSL certificates

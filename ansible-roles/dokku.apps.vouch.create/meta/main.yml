@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: phlummox
+  description: |
+    role to create (or rebuild) a Vouch dokku app
+    on some dokku host
+
+  license: MIT
+  min_ansible_version: 2.1
+
+  platforms:
+   - name: Ubuntu
+     versions:
+     - all
+
+  galaxy_tags: ["dokku", "web", "authentication"]
+
+dependencies: []

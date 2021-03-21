@@ -1,0 +1,58 @@
+name: vagrant-test
+
+on: ["push"]
+
+jobs:
+  vagrant-test:
+    runs-on: macos-10.15
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Cache vagrant boxes
+      uses: actions/cache@v2
+      with:
+        path: ~/.vagrant.d/boxes
+        key: ${{ runner.os }}-vagrant-${{ hashFiles('ansible-roles/Makefile') }}
+        restore-keys: |
+          ${{ runner.os }}-vagrant-
+
+    - name: Cache python libs
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.local
+        key: ${{ runner.os }}-python-${{ hashFiles('install-ansible/requirements.in') }}
+        restore-keys: |
+          ${{ runner.os }}-python-
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+        #architecture: 'x64' # Defaults to x64
+
+    - name: Show tool versions
+      run: |
+        set -euo pipefail
+        set -x
+        vagrant --version
+        python --version
+        python3 --version
+        pip --version
+        vboxmanage --version
+        brew --version
+
+    - name: Run vagrant up
+      run: |
+        set -x
+        export PATH=~/.local/bin:$PATH
+        brew install gnu-time
+        export PATH="$(brew --prefix)/opt/gnu-time/libexec/gnubin:$PATH"
+        ls -al ~/.local/lib/python*/site-packages/ || true
+        set -euo pipefail
+        cd ansible-roles
+        make run_tests_vbx
+        # ansible-lint all files
+        #./lint-the-files.sh
+        set +e
+        ls -al ~/.local/lib/python*/site-packages/ || true

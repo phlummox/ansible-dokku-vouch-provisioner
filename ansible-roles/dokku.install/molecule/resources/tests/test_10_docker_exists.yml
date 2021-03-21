@@ -1,0 +1,13 @@
+---
+command:
+  docker:
+    # required attributes
+    exit-status: 0
+    # defaults to hash key
+    exec: "docker --version"
+    # optional attributes
+    stdout:
+    - "/^Docker version/"
+    stderr: []
+    timeout: 6000 # in milliseconds
+    skip: false

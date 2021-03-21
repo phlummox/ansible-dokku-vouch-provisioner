@@ -1,0 +1,96 @@
+image: ubuntu:xenial@sha256:e02d30494327090a50e9a6575c018d067428ae3abdcadb208e9ecd9cb496cf98
+
+#cache:
+#  key: ${CI_COMMIT_BRANCH}
+#  paths:
+#    - .stackdir/stack-root
+
+stages:
+- test
+# - deploy
+
+variables:
+  VAGRANT_VERSION: "2.2.14"
+
+test-ansible:
+  stage: test
+  script:
+    - echo "$CI_COMMIT_BRANCH"
+    - |
+      set -euo pipefail
+      set -x
+
+      export PATH=/root/.local/bin:$PATH
+
+      apt-get update
+      apt-get install -y --no-install-recommends \
+        apt-transport-https         \
+        bzip2                       \
+        build-essential             \
+        ca-certificates             \
+        curl                        \
+        git                         \
+        locales                     \
+        make                        \
+        man-db                      \
+        pv                          \
+        software-properties-common  \
+        sudo                        \
+        tar                         \
+        unzip                       \
+        wget                        \
+        xz-utils                    \
+        zip
+
+      wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
+      add-apt-repository \
+         "deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian \
+         $(lsb_release -cs) \
+         stable"
+
+      curl -L https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_x86_64.deb > vagrant.deb
+      apt install ./vagrant.deb
+
+      add-apt-repository ppa:deadsnakes/ppa
+      apt-get update
+      apt-get install -y --no-install-recommends \
+        python3.6               \
+        python3.6-dev           \
+        libffi-dev              \
+        libssl-dev
+
+      locale-gen en_US.UTF-8
+      export LANG=en_US.UTF-8
+      export LANGUAGE=en_US:en
+      export LC_ALL=en_US.UTF-8
+
+      # don't do this unless you know you'll no
+      # longer need Ubuntu builtin tools (including
+      # various apt-based ones) afterwards, as
+      # they may be built for e.g. python3.5.
+      update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 1
+      mkdir -p /root/.local/bin
+      python3 .ci-scripts/get-pip.py
+      pip3 install -r install-ansible/requirements.txt
+
+      ansible --version
+
+      # On Gitlab CI, we can get as far as installing everything -
+      # but actually running virtualbox would, at minimum,
+      # require a privileged container.
+      (cd ansible-roles;
+      make run_tests_vbx || true)
+      grep -n ^ /root/.cache/molecule/*/default-scenario/*.err;
+
+      # install ansible-lint and ansible-lint all files
+      (cd install-ansible; make py_test_prereqs)
+      ./lint-the-files.sh
+
+      # also do plain yamllint of them
+      yamllint -c .yamllint $(find `ls | grep -v install-ansible` -name '*.yml' -o -name '*.yaml')
+
+      # check that modules written in Python can be called
+      ./module-tests.sh
+
+      set +ex
+

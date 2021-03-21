@@ -1,0 +1,33 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  vars:
+    appname: "my-dokku-app"
+  tasks:
+    - name: Run dokku.install
+      include_role:
+        name: dokku.install
+      vars:
+        DOKKU_SERVER_HOST_NAME: "dokku-install-test-vm"
+
+    - name: Run dokku.configure
+      include_role:
+        name: dokku.configure
+      vars:
+        DOKKU_SERVER_HOST_NAME: "dokku-install-test-vm"
+
+    - name: create app
+      shell: |
+        dokku apps:create "{{ appname }}"
+      changed_when: true
+
+    - name: "Include dokku.apps.clone-and-push"
+      include_role:
+        name: "dokku.apps.clone-and-push"
+      vars:
+        app_name: "{{ appname }}"
+        branch: "master"
+        repo_url: "https://github.com/phlummox-dev/minimal-dokku-app.git"
+        force: false
+

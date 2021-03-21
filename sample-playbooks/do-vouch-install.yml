@@ -1,0 +1,18 @@
+---
+# need to fill in the vars below
+- hosts: all
+  become: true
+  become_method: sudo
+  tasks:
+    - name: Run the vouch.install role
+      include_role:
+        name: vouch.install
+      vars:
+        DOKKU_SERVER_HOST_NAME: dokku-vouch-proxy
+        letsencrypt_type: "staging"
+        vouch_whitelist: "john.smith@gmail.com,sarah-jane.smith@gmail.com"
+        contact_email: "me@mydomain.com"
+        oauth_provider_secret: |
+          OAUTH_PROVIDER=google
+          OAUTH_CLIENT_ID=1220-blah-blah.apps.googleusercontent.com
+          OAUTH_CLIENT_SECRET=8YDxxxxxxxxxxxxxxxxxxxxA

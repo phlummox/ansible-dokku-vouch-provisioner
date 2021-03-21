@@ -1,0 +1,8 @@
+
+{
+ "Author": "phlummox",
+ "Website": "https://www.phlummox.dev/",
+ "Repository": "https://github.com/phlummox/ansible-dokku-vouch-provisioner",
+ "Configuration": "https://github.com/phlummox/ansible-dokku-vouch-provisioner",
+ "Description": "environment for testing dokku"
+}

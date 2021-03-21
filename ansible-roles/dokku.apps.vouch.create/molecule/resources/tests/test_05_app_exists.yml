@@ -1,0 +1,10 @@
+---
+command:
+  dokku_apps_report_vouch:
+    exit-status: 0
+    exec: "dokku apps:report vouch"
+    stdout:
+    - "/=> vouch app information/"
+    - "/App deploy/"
+    timeout: 24000 # in msecs
+    skip: false

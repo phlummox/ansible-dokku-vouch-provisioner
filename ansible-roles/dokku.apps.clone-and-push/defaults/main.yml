@@ -1,0 +1,5 @@
+---
+# defaults file for dokku.apps.clone-and-push
+
+force:  true
+branch: master

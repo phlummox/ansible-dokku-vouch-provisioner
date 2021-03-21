@@ -1,0 +1,12 @@
+---
+command:
+  dokku:
+    # required attributes
+    exit-status: 0
+    # defaults to hash key
+    exec: "dokku --version"
+    stdout:
+    - "/^dokku version/"
+    stderr: []
+    timeout: 6000 # in milliseconds
+    skip: false

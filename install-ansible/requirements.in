@@ -1,0 +1,9 @@
+ansible==2.10.6
+flake8==3.8.4
+molecule==3.2.3
+molecule-docker==0.2.4
+molecule-goss==1.1
+molecule-vagrant==0.6.1
+python-vagrant==0.5.15
+yamllint==1.26.0
+ansible-lint==5.0.2

@@ -1,0 +1,11 @@
+---
+# defaults file for dokku.apps.vouch.create
+
+# default app  name for the vouch app is "vouch"
+appname:          "vouch"
+use_letsencrypt:  true
+letsencrypt_type: "staging"
+vouch_testing:    "false"
+vouch_loglevel:   "info"
+vouch_whitelist:  ""
+#oauth_provider_secret: ""

@@ -1,0 +1,34 @@
+---
+- name: double-check dokku is installed
+  apt: pkg=dokku state=present
+
+- name: Get rid of nginx default site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: ensure no default website
+  # nb: doesn't create an error website
+  # for port 443 though.
+  # If file already exists, it's left alone
+  # (force: no)
+  register: create_default_website
+  copy:
+    dest: "/etc/nginx/conf.d/00-default-vhost.conf"
+    force: false
+    mode: "a+r"
+    content: |
+      server {
+          listen 80 default_server;
+          listen [::]:80 default_server;
+
+          server_name _;
+          access_log off;
+          return 410;
+      }
+
+- name: restart nginx if meeded # noqa no-handler
+  when: create_default_website.changed
+  service:
+    name: nginx
+    state: restarted
