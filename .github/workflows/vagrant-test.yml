@@ -59,9 +59,24 @@ jobs:
         ssh-keygen -f ~/.ssh/id_rsa -P ""
         cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
         ls -al ~/.ssh
+	: "show id"
+        id
+        : "configure ssh"
+        cat > sshd_config <<EOF
+        SyslogFacility AUTHPRIV
+        PermitRootLogin yes
+        AuthorizedKeysFile	.ssh/authorized_keys
+        PasswordAuthentication yes
+        ChallengeResponseAuthentication no
+        UseDNS no
+        X11Forwarding no
+        PrintMotd no
+        EOF
+        mv sshd_config /etc/ssh/sshd_config
+        sudo launchctl unload /System/Library/LaunchDaemons/ssh.plist
+        sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist
         ssh_opts="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
         ssh -vvv $ssh_opts localhost ls / || true
-        dmesg
         false
 
     - name: Run tests
