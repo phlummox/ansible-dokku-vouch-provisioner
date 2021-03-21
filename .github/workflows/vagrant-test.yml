@@ -72,7 +72,7 @@ jobs:
         X11Forwarding no
         PrintMotd no
         EOF
-        mv -f sshd_config /etc/ssh/sshd_config
+        sudo mv -f sshd_config /etc/ssh/sshd_config
         sudo launchctl unload /System/Library/LaunchDaemons/ssh.plist
         sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist
         ssh_opts="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
