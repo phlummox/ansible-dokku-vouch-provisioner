@@ -64,9 +64,11 @@ jobs:
         export PATH="$(brew --prefix)/opt/gnu-time/libexec/gnubin:$PATH"
         ls -al ~/.local/lib/python*/site-packages/ || true
         set -euo pipefail
+        curr_dir=$PWD
         cd ansible-roles
         make run_tests_vbx
+        cd $curr_dir
         # ansible-lint all files
-        #./lint-the-files.sh
+        ./lint-the-files.sh
         set +e
         ls -al ~/.local/lib/python*/site-packages/ || true
