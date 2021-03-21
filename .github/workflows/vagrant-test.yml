@@ -56,7 +56,7 @@ jobs:
         set -x
         set -euo pipefail
         ssh -V
-        ssh-keygen -f ~/.ssh/id_rsa -P ""
+        ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ""
         cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
         ls -al ~/.ssh
         : "show id"
@@ -70,6 +70,7 @@ jobs:
         AllowTcpForwarding yes
         X11Forwarding yes
         PermitTunnel yes
+        PermitEmptyPasswords yes
         # pass locale information
         AcceptEnv LANG LC_*
         # override default of no subsystems
