@@ -65,7 +65,6 @@ jobs:
         sudo grep -n ^ /dev/null /etc/ssh/sshd_config
         : "configure ssh"
         cat > sshd_config <<EOF
-        UsePAM yes
         AllowAgentForwarding yes
         AllowTcpForwarding yes
         X11Forwarding yes
@@ -76,7 +75,9 @@ jobs:
         # override default of no subsystems
         Subsystem	sftp	/usr/libexec/sftp-server
         PermitRootLogin yes
-        PasswordAuthentication yes
+        UsePAM yes
+        PasswordAuthentication no
+        ChallengeResponseAuthentication no
         EOF
         sudo mv -f sshd_config /etc/ssh/sshd_config
         sudo launchctl unload /System/Library/LaunchDaemons/ssh.plist
