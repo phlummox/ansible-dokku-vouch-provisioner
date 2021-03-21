@@ -97,7 +97,7 @@ jobs:
         ANSIBLE_FORCE_COLOR: '1'
       run: |
         set -x
-        mkdir nested-vma
+        mkdir nested-vm
         cp .ci-scripts/nested/Vagrantfile nested-vm
         cd nested-vm
         vagrant up --provider virtualbox
