@@ -34,6 +34,11 @@ run_role() {
   local provider=$1
   local role=$2
   set -x;
+
+  if [ "$role" = "dokku.apps.clone-and-push" ]; then
+    VERBOSITY="--debug -vvv"
+  fi
+
   (cd "$role" && PROVIDER_NAME="$provider" PROVIDER_TYPE="$provider" molecule $VERBOSITY test --scenario-name default-scenario 2>&1 | sed "s/^/$role:/"; )
   set +x
 }
