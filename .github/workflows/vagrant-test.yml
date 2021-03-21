@@ -51,6 +51,12 @@ jobs:
         vboxmanage --version
         brew --version
 
+    - name: create ssh keys
+      run: |
+        set -x
+        set -euo pipefail
+        ssh-keygen -f ~/.ssh/id_rsa -P ""
+
     - name: Run tests
       # force colors for molecule and ansible, even
       # though not tty
@@ -68,7 +74,13 @@ jobs:
         cd ansible-roles
         make run_tests_vbx
         cd $curr_dir
+
         # ansible-lint all files
         ./lint-the-files.sh
+        # also do plain yamllint
+        yamllint -c .yamllint $(find `ls | grep -v install-ansible` -name '*.yml' -o -name '*.yaml')
+
         set +e
         ls -al ~/.local/lib/python*/site-packages/ || true
+
+# vim: ts=2 sw=2 et :
