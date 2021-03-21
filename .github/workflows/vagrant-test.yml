@@ -55,7 +55,7 @@ jobs:
       run: |
         set -x
         set -euo pipefail
-        ssh --version
+        ssh -V
         ssh-keygen -f ~/.ssh/id_rsa -P ""
         cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
         ssh localhost ls /
