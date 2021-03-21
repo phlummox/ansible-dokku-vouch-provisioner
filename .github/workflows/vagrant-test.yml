@@ -61,9 +61,10 @@ jobs:
         ls -al ~/.ssh
         : "show id"
         id
+        : "existing sshd config"
+        sudo grep -n ^ /dev/null /etc/ssh/sshd_config
         : "configure ssh"
         cat > sshd_config <<EOF
-        SyslogFacility AUTHPRIV
         PermitRootLogin yes
         AuthorizedKeysFile  .ssh/authorized_keys
         PasswordAuthentication yes
@@ -80,6 +81,7 @@ jobs:
         ssh -vvvv $ssh_opts localhost ls / || true
         sudo ls -al /var/log || true
         sudo cat /var/log/system.log | grep -i -E 'auth|ssh' || true
+        sudo grep ssh /var/log/secure.log || true
         false
 
     - name: Run tests
