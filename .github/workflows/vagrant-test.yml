@@ -65,14 +65,17 @@ jobs:
         sudo grep -n ^ /dev/null /etc/ssh/sshd_config
         : "configure ssh"
         cat > sshd_config <<EOF
-        PermitRootLogin yes
-        AuthorizedKeysFile  .ssh/authorized_keys
-        PasswordAuthentication yes
-        ChallengeResponseAuthentication no
         UsePAM yes
-        UseDNS no
-        X11Forwarding no
-        PrintMotd no
+        AllowAgentForwarding yes
+        AllowTcpForwarding yes
+        X11Forwarding yes
+        PermitTunnel yes
+        # pass locale information
+        AcceptEnv LANG LC_*
+        # override default of no subsystems
+        Subsystem	sftp	/usr/libexec/sftp-server
+        PermitRootLogin yes
+        PasswordAuthentication yes
         EOF
         sudo mv -f sshd_config /etc/ssh/sshd_config
         sudo launchctl unload /System/Library/LaunchDaemons/ssh.plist
