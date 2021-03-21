@@ -10,7 +10,7 @@
 SHELL=bash
 
 ROLES_TO_TEST=$(shell find * -mindepth 0 -maxdepth 0 -type d | grep -v shared)
-ROLES_TO_TEST=demo
+ROLES_TO_TEST=demo dokku.install
 
 # whether to use a virtualenv.
 #
