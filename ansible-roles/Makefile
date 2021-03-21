@@ -20,7 +20,7 @@ ROLES_TO_TEST=demo dokku.install dokku.configure dokku.apps.clone-and-push
 # instead, pip packages will get installed to ~/.local so
 # we can cache them.
 # (both GitHub and GitLab set the var "CI" to true")
-SHOULD_USE_VIRTUALENV=$(shell if [ -z "$CI" ] ; then echo true; fi)
+SHOULD_USE_VIRTUALENV=$(shell if [ -z "$$CI" ] ; then echo true; else echo false; fi)
 
 ANSIBLE_LIBRARY=$$PWD/../ansible-lib/modules
 ANSIBLE_ACTION_PLUGINS=$$PWD/../ansible-lib/plugins/action
