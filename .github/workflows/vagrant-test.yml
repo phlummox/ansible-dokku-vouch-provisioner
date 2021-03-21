@@ -59,7 +59,7 @@ jobs:
         ssh-keygen -f ~/.ssh/id_rsa -P ""
         cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
         ssh_opts="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
-        ssh $ssh_opts localhost ls /
+        ssh -vvv $ssh_opts localhost ls /
 
     - name: Run tests
       # force colors for molecule and ansible, even
