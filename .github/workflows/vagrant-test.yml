@@ -38,9 +38,9 @@ jobs:
     - uses: actions/setup-python@v2
       with:
         python-version: '3.x'
-        #architecture: 'x64' # Defaults to x64
+        # architecture: 'x64' # Defaults to x64
 
-    brary/Caches/pip/- name: Show tool versions
+    - name: Show tool versions
       run: |
         set -euo pipefail
         set -x
