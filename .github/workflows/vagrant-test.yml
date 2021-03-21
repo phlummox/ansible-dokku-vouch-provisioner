@@ -68,6 +68,7 @@ jobs:
         AuthorizedKeysFile  .ssh/authorized_keys
         PasswordAuthentication yes
         ChallengeResponseAuthentication no
+        UsePAM yes
         UseDNS no
         X11Forwarding no
         PrintMotd no
