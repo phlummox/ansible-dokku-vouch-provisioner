@@ -52,6 +52,11 @@ jobs:
         brew --version
 
     - name: Run tests
+      # force colors for molecule and ansible, even
+      # though not tty
+      env:
+        PY_COLORS: '1'
+        ANSIBLE_FORCE_COLOR: '1'
       run: |
         set -x
         export PATH=~/.local/bin:$PATH
