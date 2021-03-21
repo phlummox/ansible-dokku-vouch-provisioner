@@ -76,7 +76,7 @@ jobs:
         sudo launchctl unload /System/Library/LaunchDaemons/ssh.plist
         sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist
         ssh_opts="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
-        ssh -vvv $ssh_opts localhost ls / || true
+        ssh -vvvv $ssh_opts localhost ls / || true
         false
 
     - name: Run tests
