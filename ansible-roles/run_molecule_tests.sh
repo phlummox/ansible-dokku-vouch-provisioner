@@ -7,7 +7,7 @@
 # (probably either libvirt or virtualbox).
 
 # expected env vars:
-#   SHOULD_USER_VIRTUALENV - whether to install
+#   SHOULD_USE_VIRTUALENV - whether to install
 #     pip packages into a virtualenv. Should equal string
 #     "true" if so.
 #   ANSIBLE_LIBRARY - path to ansible modules
@@ -34,6 +34,11 @@ run_role() {
   local provider=$1
   local role=$2
   set -x;
+
+  if [ "$role" = "dokku.apps.clone-and-push" ]; then
+    VERBOSITY="--debug -vvv"
+  fi
+
   (cd "$role" && PROVIDER_NAME="$provider" PROVIDER_TYPE="$provider" molecule $VERBOSITY test --scenario-name default-scenario 2>&1 | sed "s/^/$role:/"; )
   set +x
 }
@@ -57,7 +62,7 @@ set -euo pipefail
 if which molecule; then
   echo molecule found on PATH;
 else
-  if [ "$SHOULD_USER_VIRTUALENV" = "true" ] ; then
+  if [ "$SHOULD_USE_VIRTUALENV" = "true" ] ; then
     set -x
     (cd ../install-ansible; make env);
     set +x

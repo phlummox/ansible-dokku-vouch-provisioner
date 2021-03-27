@@ -10,7 +10,7 @@
 SHELL=bash
 
 ROLES_TO_TEST=$(shell find * -mindepth 0 -maxdepth 0 -type d | grep -v shared)
-ROLES_TO_TEST=demo
+ROLES_TO_TEST=demo dokku.install dokku.configure dokku.apps.clone-and-push
 
 # whether to use a virtualenv.
 #
@@ -20,13 +20,13 @@ ROLES_TO_TEST=demo
 # instead, pip packages will get installed to ~/.local so
 # we can cache them.
 # (both GitHub and GitLab set the var "CI" to true")
-SHOULD_USER_VIRTUALENV=$(shell if [ -z "$CI" ] ; then echo true; fi)
+SHOULD_USE_VIRTUALENV=$(shell if [ -z "$$CI" ] ; then echo true; else echo false; fi)
 
 ANSIBLE_LIBRARY=$$PWD/../ansible-lib/modules
 ANSIBLE_ACTION_PLUGINS=$$PWD/../ansible-lib/plugins/action
 
 #VERBOSITY=--debug -vvv
-VERBOSITY=-v
+#VERBOSITY=
 
 TIMER=if which time; then export timer="`which time` -v"; else export timer=""; fi
 
@@ -75,7 +75,7 @@ install_vagrant_dokku_box:
 run_tests_vbx:
 	set -euo pipefail; \
 	set -x; \
-	export SHOULD_USER_VIRTUALENV="$(SHOULD_USER_VIRTUALENV)"; \
+	export SHOULD_USE_VIRTUALENV="$(SHOULD_USE_VIRTUALENV)"; \
 	export ANSIBLE_LIBRARY="$(ANSIBLE_LIBRARY)"; \
 	export ANSIBLE_ACTION_PLUGINS="$(ANSIBLE_ACTION_PLUGINS)"; \
 	export PROVIDER_MEMORY="$(PROVIDER_MEMORY)"; \
@@ -90,7 +90,7 @@ run_tests_vbx:
 run_tests_libvirt:
 	set -euo pipefail; \
 	set -x; \
-	export SHOULD_USER_VIRTUALENV="$(SHOULD_USER_VIRTUALENV)"; \
+	export SHOULD_USE_VIRTUALENV="$(SHOULD_USE_VIRTUALENV)"; \
 	export ANSIBLE_LIBRARY="$(ANSIBLE_LIBRARY)"; \
 	export ANSIBLE_ACTION_PLUGINS="$(ANSIBLE_ACTION_PLUGINS)"; \
 	export PROVIDER_MEMORY="$(PROVIDER_MEMORY)"; \

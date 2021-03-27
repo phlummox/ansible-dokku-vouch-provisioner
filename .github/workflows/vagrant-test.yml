@@ -3,65 +3,189 @@ name: vagrant-test
 on: ["push"]
 
 jobs:
-  vagrant-test:
-    runs-on: macos-10.15
+  build:
+    runs-on: ubuntu-18.04
+    env:
+      VAGRANT_VERSION: "2.2.14"
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: Cache vagrant boxes
-      uses: actions/cache@v2
-      with:
-        path: ~/.vagrant.d/boxes
-        key: ${{ runner.os }}-vagrant-${{ hashFiles('ansible-roles/Makefile') }}
-        restore-keys: |
-          ${{ runner.os }}-vagrant-
+    #- name: Cache vagrant boxes
+    #  uses: actions/cache@v2
+    #  with:
+    #    path: ~/.vagrant.d/boxes
+    #    key: ${{ runner.os }}-vagrant-${{ hashFiles('ansible-roles/Makefile') }}
+    #    restore-keys: |
+    #      ${{ runner.os }}-vagrant-
 
-    - name: Cache pip download dir
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/Library/Caches/pip
-        key: ${{ runner.os }}-python-${{ hashFiles('install-ansible/requirements.in') }}
-        restore-keys: |
-          ${{ runner.os }}-python-
+    #- name: Cache pip download dir
+    #  uses: actions/cache@v2
+    #  with:
+    #    path: |
+    #      ~/Library/Caches/pip
+    #    key: ${{ runner.os }}-pipcache-${{ hashFiles('install-ansible/requirements.in') }}
+    #    restore-keys: |
+    #      ${{ runner.os }}-pipcache-
 
-    - name: Cache python libs
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.local
-        key: ${{ runner.os }}-python-${{ hashFiles('install-ansible/requirements.in') }}
-        restore-keys: |
-          ${{ runner.os }}-python-
+    #- name: Cache python libs
+    #  uses: actions/cache@v2
+    #  with:
+    #    path: |
+    #      ~/.local
+    #    key: ${{ runner.os }}-piplibs-${{ hashFiles('install-ansible/requirements.in') }}
+    #    restore-keys: |
+    #      ${{ runner.os }}-piplibs-
 
-    - uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
-        #architecture: 'x64' # Defaults to x64
-
-    brary/Caches/pip/- name: Show tool versions
+    - name: Install vagrant
       run: |
         set -euo pipefail
         set -x
-        vagrant --version
-        python --version
+
+        VAGRANT_URL="https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_x86_64.deb"
+        dir=`mktemp -d tmp-downloaded-vagrant-deb-XXXXX`
+        curl -L "${VAGRANT_URL}" > $dir/vagrant.deb
+        sudo apt install $PWD/$dir/vagrant.deb
+
+    - name: install test dependencies
+      run: |
+        set -euo pipefail
+        set -x
+
+        sudo apt install -y --no-install-recommends \
+            libvirt-bin \
+            libvirt-dev \
+            python-pip \
+            python3-pip \
+            sshpass
+
+        sudo systemctl start libvirtd
+        sudo systemctl status libvirtd
+
+        sudo adduser $USER libvirt
+        sudo adduser $USER kvm
+
+    - name: Show tool versions
+      run: |
+        set -euo pipefail
+        set -x
+
+        gcc     --version
+        pip     --version
+        pip3    --version
         python3 --version
-        pip --version
-        vboxmanage --version
-        brew --version
+        python  --version
+        ssh     -V
+        vagrant --version
+        virsh   --version
 
-    - name: Run tests
-      run: |
-        set -x
-        export PATH=~/.local/bin:$PATH
-        brew install gnu-time
-        export PATH="$(brew --prefix)/opt/gnu-time/libexec/gnubin:$PATH"
-        ls -al ~/.local/lib/python*/site-packages/ || true
-        set -euo pipefail
-        cd ansible-roles
-        make run_tests_vbx
-        # ansible-lint all files
-        #./lint-the-files.sh
-        set +e
-        ls -al ~/.local/lib/python*/site-packages/ || true
+
+    #- name: test libvirt
+    #  run: |
+    #    set -x
+    #    set -euo pipefail
+
+    #    id
+
+    #    virsh list --all
+
+    #    #./virsh-test.sh
+
+    #- name: build libvirt plugin for vagrant
+    #  run: |
+    #    set -x
+    #    set -euo pipefail
+
+    #    libvirt_include_dir="$(pkg-config --variable=includedir libvirt)"
+    #    libvirt_lib_dir="$(pkg-config --variable=libdir libvirt)"
+    #    ruby_version=`/opt/vagrant/embedded/bin/ruby -e 'puts RUBY_VERSION'`
+    #    export CONFIGURE_ARGS="with-ldflags=-L/opt/vagrant/embedded/lib with-libvirt-include=$libvirt_include_dir with-libvirt-lib=$libvirt_lib_dir"
+    #    export GEM_HOME=~/.vagrant.d/gems/$ruby_version
+    #    export GEM_PATH=$GEM_HOME:/opt/vagrant/embedded/gems
+    #    export PATH=/opt/vagrant/embedded/bin:$PATH
+
+    #    ls -al $GEM_HOME || true
+
+    #    vagrant plugin install vagrant-libvirt
+
+    #- name: test libvirt plugin
+    #  run: |
+    #    set -x
+    #    set -euo pipefail
+
+    #    dir=some-alpine-box
+    #    mkdir -p $dir
+    #    cd $dir
+    #    vagrant init generic/alpine310
+    #    vagrant up --provider=libvirt
+    #    vagrant ssh -- ls -a /
+
+    #- name: create ssh keys
+    #  run: |
+    #    set -x
+    #    set -euo pipefail
+    #    #ssh -V
+    #    #ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ""
+    #    #cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+    #    #ls -al ~/.ssh
+    #    #: "show id"
+    #    #id
+    #    #: "existing sshd config"
+    #    #sudo grep -n ^ /dev/null /etc/ssh/sshd_config
+    #    #: "configure ssh"
+    #    #cat > sshd_config <<EOF
+    #    #AllowAgentForwarding yes
+    #    #AllowTcpForwarding yes
+    #    #X11Forwarding yes
+    #    #PermitTunnel yes
+    #    #PermitEmptyPasswords yes
+    #    ## pass locale information
+    #    #AcceptEnv LANG LC_*
+    #    ## override default of no subsystems
+    #    #Subsystem	sftp	/usr/libexec/sftp-server
+    #    #PermitRootLogin yes
+    #    #UsePAM yes
+    #    #PasswordAuthentication no
+    #    #ChallengeResponseAuthentication no
+    #    #EOF
+    #    #sudo mv -f sshd_config /etc/ssh/sshd_config
+    #    #sudo launchctl unload /System/Library/LaunchDaemons/ssh.plist
+    #    #sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist
+    #    #ssh_opts="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+    #    #ssh -vvvv $ssh_opts localhost ls / || true
+    #    #sudo ls -al /var/log || true
+    #    #sudo cat /var/log/system.log | grep -i -E 'auth|ssh' || true
+    #    #sudo grep ssh /var/log/secure.log || true
+    #    #false
+
+    #- name: Run tests
+    #  # force colors for molecule and ansible, even
+    #  # though not tty
+    #  env:
+    #    PY_COLORS: '1'
+    #    ANSIBLE_FORCE_COLOR: '1'
+    #  run: |
+    #    set -x
+    #    mkdir nested-vm
+    #    #cp .ci-scripts/nested/Vagrantfile nested-vm
+    #    #cd nested-vm
+    #    #vagrant up --provider virtualbox
+    #    #export PATH=~/.local/bin:$PATH
+    #    #brew install gnu-time
+    #    #export PATH="$(brew --prefix)/opt/gnu-time/libexec/gnubin:$PATH"
+    #    #ls -al ~/.local/lib/python*/site-packages/ || true
+    #    #set -euo pipefail
+    #    #curr_dir=$PWD
+    #    #cd ansible-roles
+    #    #make run_tests_vbx
+    #    #cd $curr_dir
+
+    #    ## ansible-lint all files
+    #    #./lint-the-files.sh
+    #    ## also do plain yamllint
+    #    #yamllint -c .yamllint $(find `ls | grep -v install-ansible` -name '*.yml' -o -name '*.yaml')
+
+    #    #set +e
+    #    #ls -al ~/.local/lib/python*/site-packages/ || true
+
+# vim: ts=2 sw=2 et :

@@ -12,8 +12,13 @@ ACTIVATE=\
 py_prereqs:
 	set -ex; \
 	$(ACTIVATE) ; \
-	pip install --user --upgrade pip wheel; \
-	pip install --user --upgrade pip-tools; \
+	if [ -f "$$activate" ] ; then \
+		pip_flags=""; \
+	else \
+		pip_flags="--user"; \
+	fi; \
+	pip install $$pip_flags --upgrade pip wheel; \
+	pip install $$pip_flags --upgrade pip-tools; \
 	pip-compile requirements.in; \
-	pip install --user -r requirements.txt
+	pip install $$pip_flags -r requirements.txt
 
