@@ -163,6 +163,8 @@ jobs:
 
         sudo iptables --list
 
+        sudo systemctl restart libvirtd
+
         origdir=$PWD
         tmpdir=`mktemp -d libvirt-test-XXXXXX`
         cd $tmpdir
@@ -179,7 +181,7 @@ jobs:
           #config.ssh.username   = "vagrant"
           #config.ssh.insert_key = false
           config.vm.provider :libvirt do |lv|
-            lv.driver = 'kvm'
+            lv.driver = 'qemu'
             lv.cpus   = 1
             lv.memory = 792
             #lv.username = "vagrant"
