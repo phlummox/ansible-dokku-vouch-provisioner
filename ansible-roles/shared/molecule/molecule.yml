@@ -11,7 +11,9 @@ driver:
       cpus: 2
 platforms:
   - name: dokku-install-test-vm
-    box: ${PLATFORM_BOX}
+    box: $APLATFORM_BOX}
+    provider_options:
+      driver: 'qemu'
 provisioner:
   name: ansible
   config_options:
