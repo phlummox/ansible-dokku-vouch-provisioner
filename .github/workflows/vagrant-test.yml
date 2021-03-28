@@ -52,6 +52,9 @@ jobs:
         set -euo pipefail
         set -x
 
+        dpkg --get-selections | grep v
+        ls -a ~
+
         VAGRANT_URL="https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_x86_64.deb"
         dir=`mktemp -d tmp-downloaded-vagrant-deb-XXXXX`
         curl -L "${VAGRANT_URL}" > $dir/vagrant.deb
@@ -85,6 +88,7 @@ jobs:
             tar                         \
             time                        \
             unzip                       \
+            virtinst                    \
             wget                        \
             xz-utils                    \
             zip                         \
@@ -147,22 +151,39 @@ jobs:
         set -x
         set -euo pipefail
 
+        sudo iptables --list
+        sudo iptables -P INPUT ACCEPT
+        sudo iptables -P OUTPUT ACCEPT
+        sudo iptables -P FORWARD ACCEPT
+        sudo iptables -F
+
+        sudo iptables --list
+
         origdir=$PWD
         tmpdir=`mktemp -d libvirt-test-XXXXXX`
         cd $tmpdir
 
         vagrant box add --provider libvirt generic/ubuntu1804
+        vagrant box add --provider libvirt generic/alpine312
 
         # can't use kvm driver on GitHub CI,
         # use qemu
         cat > Vagrantfile <<EOF
         Vagrant.configure("2") do |config|
-          config.vm.box = "generic/ubuntu1804"
-          config.ssh.password = "vagrant"
-          config.ssh.username = "vagrant"
+          config.vm.box         = "generic/alpine312"
+          config.ssh.password   = "vagrant"
+          config.ssh.username   = "vagrant"
           config.ssh.insert_key = false
           config.vm.provider :libvirt do |lv|
             lv.driver = 'qemu'
+            lv.cpus   = 1
+            lv.memory = 792
+            lv.username = "vagrant"
+            lv.password = "vagrant"
+            lv.id_ssh_key_file = nil
+            lv.nic_model_type = "virtio"
+            lv.nested = true
+            lv.graphics_type = "none"
           end
         end
         EOF
