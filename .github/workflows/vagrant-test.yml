@@ -136,14 +136,13 @@ jobs:
         tmpdir=`mktemp -d libvirt-test-XXXXXX`
         cd $tmpdir
 
-        vagrant box add --provider libvirt generic/ubuntu1804
         vagrant box add --provider libvirt phlummox/vagrant-in-vagrant
 
         # can't use kvm driver on GitHub CI,
         # use qemu
         cat > Vagrantfile <<EOF
         Vagrant.configure("2") do |config|
-          config.vm.box         = "generic/ubuntu1804"
+          config.vm.box         = "phlummox/vagrant-in-vagrant"
           config.vm.provider :libvirt do |lv|
             lv.driver = 'qemu'
           end
@@ -151,8 +150,6 @@ jobs:
         EOF
 
         sudo su -l $USER -c "set -ex; export CI=$CI; cd $PWD; pwd; id; ls -al /var/run/libvirt/libvirt-sock; vagrant up --no-provision --debug --provider libvirt; vagrant ssh -- ls  / | grep boot"
-
-        false
 
     #- name: create ssh keys
     #  run: |
