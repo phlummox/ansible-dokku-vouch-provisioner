@@ -132,10 +132,6 @@ jobs:
         set -x
         set -euo pipefail
 
-        sudo iptables --list
-
-        sudo systemctl restart libvirtd
-
         origdir=$PWD
         tmpdir=`mktemp -d libvirt-test-XXXXXX`
         cd $tmpdir
@@ -147,7 +143,7 @@ jobs:
         # use qemu
         cat > Vagrantfile <<EOF
         Vagrant.configure("2") do |config|
-          config.vm.box         = "phlummox/vagrant-in-vagrant"
+          config.vm.box         = "generic/ubuntu1804"
           config.vm.provider :libvirt do |lv|
             lv.driver = 'qemu'
           end
