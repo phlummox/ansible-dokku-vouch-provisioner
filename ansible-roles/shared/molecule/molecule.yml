@@ -13,7 +13,7 @@ platforms:
   - name: dokku-install-test-vm
     box: ${PLATFORM_BOX}
     provider_options:
-      driver: 'qemu'
+      driver: '"qemu"'
 provisioner:
   name: ansible
   config_options:
