@@ -158,24 +158,14 @@ jobs:
         cat > Vagrantfile <<EOF
         Vagrant.configure("2") do |config|
           config.vm.box         = "phlummox/vagrant-in-vagrant"
-          #config.ssh.password   = "vagrant"
-          #config.ssh.username   = "vagrant"
-          #config.ssh.insert_key = false
           config.vm.provider :libvirt do |lv|
             lv.driver = 'qemu'
             lv.cpus   = 1
-            lv.memory = 792
-            #lv.username = "vagrant"
-            #lv.password = "vagrant"
-            #lv.id_ssh_key_file = nil
-            #lv.nic_model_type = "virtio"
-            #lv.nested = true
-            lv.graphics_type = "none"
           end
         end
         EOF
 
-        sudo su -l $USER -c "set -ex; export CI=$CI; cd $PWD; pwd; id; ls -al /var/run/libvirt/libvirt-sock; vagrant up --no-provision --debug --provider libvirt; vagrant ssh -- ls -a /"
+        sudo su -l $USER -c "set -ex; export CI=$CI; cd $PWD; pwd; id; ls -al /var/run/libvirt/libvirt-sock; vagrant up --no-provision --debug --provider libvirt; vagrant ssh -- ls  / | grep boot"
 
         false
 
