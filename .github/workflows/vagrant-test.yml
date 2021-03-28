@@ -52,9 +52,6 @@ jobs:
         set -euo pipefail
         set -x
 
-        dpkg --get-selections | grep v
-        ls -a ~
-
         VAGRANT_URL="https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_x86_64.deb"
         dir=`mktemp -d tmp-downloaded-vagrant-deb-XXXXX`
         curl -L "${VAGRANT_URL}" > $dir/vagrant.deb
@@ -66,33 +63,17 @@ jobs:
         set -x
 
         sudo apt install -y --no-install-recommends \
-            apt-transport-https         \
-            bridge-utils                \
-            build-essential             \
-            bzip2                       \
-            git                         \
-            libguestfs-tools            \
             libvirt-bin                 \
             libvirt-dev                 \
-            libxml2-dev                 \
-            libxslt-dev                 \
-            locales                     \
-            make                        \
             openssh-client              \
-            pkg-config                  \
             qemu-kvm                    \
             qemu-utils                  \
-            ruby-dev                    \
-            software-properties-common  \
             sshpass                     \
-            tar                         \
             time                        \
-            unzip                       \
             virtinst                    \
             wget                        \
             xz-utils                    \
-            zip                         \
-            zlib1g-dev
+            zip
 
         sudo systemctl start libvirtd
         sudo systemctl status libvirtd
