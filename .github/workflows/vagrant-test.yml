@@ -63,13 +63,32 @@ jobs:
         set -x
 
         sudo apt install -y --no-install-recommends \
-            libvirt-bin     \
-            libvirt-dev     \
-            openssh-client  \
-            qemu-kvm        \
-            qemu-utils      \
-            sshpass         \
-            time
+            apt-transport-https         \
+            bridge-utils                \
+            build-essential             \
+            bzip2                       \
+            git                         \
+            libguestfs-tools            \
+            libvirt-bin                 \
+            libvirt-dev                 \
+            libxml2-dev                 \
+            libxslt-dev                 \
+            locales                     \
+            make                        \
+            openssh-client              \
+            pkg-config                  \
+            qemu-kvm                    \
+            qemu-utils                  \
+            ruby-dev                    \
+            software-properties-common  \
+            sshpass                     \
+            tar                         \
+            time                        \
+            unzip                       \
+            wget                        \
+            xz-utils                    \
+            zip                         \
+            zlib1g-dev
 
         sudo systemctl start libvirtd
         sudo systemctl status libvirtd
@@ -128,24 +147,31 @@ jobs:
         set -x
         set -euo pipefail
 
-        dir=some-alpine-box
-        mkdir -p $dir
-        cd $dir
+        origdir=$PWD
+        tmpdir=`mktemp -d libvirt-test-XXXXXX`
+        cd $tmpdir
+
+        vagrant box add --provider libvirt generic/ubuntu1804
 
         # can't use kvm driver on GitHub CI,
         # use qemu
         cat > Vagrantfile <<EOF
         Vagrant.configure("2") do |config|
           config.vm.box = "generic/ubuntu1804"
+          config.ssh.password = "vagrant"
+          config.ssh.username = "vagrant"
+          config.ssh.insert_key = false
           config.vm.provider :libvirt do |lv|
             lv.driver = 'qemu'
           end
         end
         EOF
 
-        sudo su -l $USER -c "set -ex; export CI=$CI; cd $PWD; pwd; id; ls -al /var/run/libvirt/libvirt-sock; vagrant up --debug --provider=libvirt"
+        sudo su -l $USER -c "set -ex; export CI=$CI; cd $PWD; pwd; id; ls -al /var/run/libvirt/libvirt-sock; vagrant up --no-provision --debug --provider=libvirt"
 
-        vagrant ssh -- ls -a /
+        #vagrant ssh -- ls -a /
+
+        false
 
     #- name: create ssh keys
     #  run: |
