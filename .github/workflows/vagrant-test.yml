@@ -151,6 +151,10 @@ jobs:
         set -x
         set -euo pipefail
 
+        sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+        sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+
+
         sudo iptables --list
         sudo iptables -P INPUT ACCEPT
         sudo iptables -P OUTPUT ACCEPT
@@ -164,25 +168,25 @@ jobs:
         cd $tmpdir
 
         vagrant box add --provider libvirt generic/ubuntu1804
-        vagrant box add --provider libvirt generic/alpine312
+        vagrant box add --provider libvirt phlummox/vagrant-in-vagrant
 
         # can't use kvm driver on GitHub CI,
         # use qemu
         cat > Vagrantfile <<EOF
         Vagrant.configure("2") do |config|
-          config.vm.box         = "generic/alpine312"
-          config.ssh.password   = "vagrant"
-          config.ssh.username   = "vagrant"
-          config.ssh.insert_key = false
+          config.vm.box         = "phlummox/vagrant-in-vagrant"
+          #config.ssh.password   = "vagrant"
+          #config.ssh.username   = "vagrant"
+          #config.ssh.insert_key = false
           config.vm.provider :libvirt do |lv|
-            lv.driver = 'qemu'
+            lv.driver = 'kvm'
             lv.cpus   = 1
             lv.memory = 792
-            lv.username = "vagrant"
-            lv.password = "vagrant"
-            lv.id_ssh_key_file = nil
-            lv.nic_model_type = "virtio"
-            lv.nested = true
+            #lv.username = "vagrant"
+            #lv.password = "vagrant"
+            #lv.id_ssh_key_file = nil
+            #lv.nic_model_type = "virtio"
+            #lv.nested = true
             lv.graphics_type = "none"
           end
         end
