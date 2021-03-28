@@ -149,7 +149,7 @@ jobs:
         end
         EOF
 
-        sudo su -l $USER -c "set -ex; export CI=$CI; cd $PWD; pwd; id; ls -al /var/run/libvirt/libvirt-sock; vagrant up --no-provision --debug --provider libvirt; vagrant ssh -- ls  / | grep boot"
+        sudo su -l $USER -c "set -ex; export CI=$CI; export PATH=$PATH; cd $PWD; pwd; id; ls -al /var/run/libvirt/libvirt-sock; vagrant up --no-provision --debug --provider libvirt; vagrant ssh -- ls  / | grep boot"
 
     #- name: create ssh keys
     #  run: |
