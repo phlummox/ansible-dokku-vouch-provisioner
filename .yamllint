@@ -8,4 +8,4 @@ rules:
   colons: disable
   indentation: disable
   truthy:
-    level: error
+    level: warning
