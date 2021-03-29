@@ -53,13 +53,6 @@ jobs:
         set -euo pipefail
         set -x
 
-        VAGRANT_URL="https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_x86_64.deb"
-        dir=`mktemp -d tmp-downloaded-vagrant-deb-XXXXX`
-        curl -L "${VAGRANT_URL}" > $dir/vagrant.deb
-        sudo apt install $PWD/$dir/vagrant.deb
-
-        vagrant --version
-
         PACKER_URL="https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip"
         wget $PACKER_URL
         unzip packer_${PACKER_VERSION}_linux_amd64.zip
@@ -72,11 +65,7 @@ jobs:
         set -euo pipefail
         set -x
 
-        sudo apt-get update
-        sudo apt-get install -y --no-install-recommends \
-          pv \
-          qemu-kvm \
-          qemu-utils
+        ./provision-test-machine.sh
 
     - name: Install/build python-based dependencies
       run: |
