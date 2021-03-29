@@ -47,76 +47,12 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-piplibs-
 
-    - name: Install vagrant
+    - name: Provision for testing
       run: |
         set -euo pipefail
         set -x
 
-        VAGRANT_URL="https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_x86_64.deb"
-        dir=`mktemp -d tmp-downloaded-vagrant-deb-XXXXX`
-        curl -L "${VAGRANT_URL}" > $dir/vagrant.deb
-        sudo apt install $PWD/$dir/vagrant.deb
-
-    - name: install libvirt dependencies
-      run: |
-        set -euo pipefail
-        set -x
-
-        sudo apt install -y --no-install-recommends \
-            libvirt-bin                 \
-            libvirt-dev                 \
-            openssh-client              \
-            qemu-kvm                    \
-            qemu-utils                  \
-            sshpass                     \
-            time                        \
-            virtinst                    \
-            wget                        \
-            xz-utils                    \
-            zip
-
-        sudo systemctl start libvirtd
-        sudo systemctl status libvirtd
-
-        sudo adduser $USER libvirt
-        sudo adduser $USER kvm
-
-    - name: Install basic python packages
-      run: |
-        set -euo pipefail
-        set -x
-
-        python3 .ci-scripts/get-pip.py
-
-        pip3 install --user --upgrade \
-            pip         \
-            pip-tools   \
-            virtualenv  \
-            wheel
-
-    - name: Show tool versions
-      run: |
-        set -euo pipefail
-        set -x
-
-        gcc     --version
-        pip3    --version
-        python3 --version
-        ssh     -V
-        vagrant --version
-        virsh   --version
-
-    - name: Install libvirt plugin for vagrant
-      run: |
-        set -euo pipefail
-        set -x
-
-        LIBVIRT_PLUGIN_URL="https://github.com/phlummox/vagrant-in-vagrant/releases/download/v${LIBVIRT_PLUGIN_VERSION}/vagrant.d.tgz"
-
-        curl -L "${LIBVIRT_PLUGIN_URL}" | tar x -z -C ~
-
-        vagrant plugin list | grep vagrant-libvirt
-
+        ./provision-test-machine.sh
 
     #- name: test libvirt
     #  run: |
@@ -126,30 +62,6 @@ jobs:
     #    id
     #    virsh list --all
     #    #./virsh-test.sh
-
-    - name: test libvirt plugin
-      run: |
-        set -x
-        set -euo pipefail
-
-        origdir=$PWD
-        tmpdir=`mktemp -d libvirt-test-XXXXXX`
-        cd $tmpdir
-
-        vagrant box add --provider libvirt phlummox/vagrant-in-vagrant
-
-        # can't use kvm driver on GitHub CI,
-        # use qemu
-        cat > Vagrantfile <<EOF
-        Vagrant.configure("2") do |config|
-          config.vm.box         = "phlummox/vagrant-in-vagrant"
-          config.vm.provider :libvirt do |lv|
-            lv.driver = 'qemu'
-          end
-        end
-        EOF
-
-        sudo su -l $USER -c "set -ex; export CI=$CI; export PATH=$PATH; cd $PWD; pwd; id; ls -al /var/run/libvirt/libvirt-sock; vagrant up --no-provision --debug --provider libvirt; vagrant ssh -- ls  / | grep boot"
 
     #- name: create ssh keys
     #  run: |

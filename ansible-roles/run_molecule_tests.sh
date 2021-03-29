@@ -25,6 +25,12 @@ if [ "$#" -ne 1 ]; then
   exit 1;
 fi
 
+MAGENTA='[35m'
+RESET='[0m'
+
+printf '%s== RUN_MOLECULE_TESTS==%s\n' "$MAGENTA" "$RESET"
+
+echo PATH is: $PATH
 
 run_role() {
   if [ "$#" -ne 2 ]; then
