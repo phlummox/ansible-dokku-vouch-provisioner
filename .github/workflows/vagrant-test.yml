@@ -1,6 +1,10 @@
 name: vagrant-test
 
-on: []
+# try to disable this workflow for the mo
+on:
+  push:
+    tags:
+      - "zzz*"
 
 jobs:
   vagrant-test:
