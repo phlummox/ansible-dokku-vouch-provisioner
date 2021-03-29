@@ -12,6 +12,14 @@ jobs:
 
     steps:
 
+    - name: set path
+      run: |
+        set -euo pipefail
+        set -x
+
+        mkdir -p ~/.local/bin
+        echo "PATH=${HOME}/.local/bin:${PATH}" >> $GITHUB_ENV
+
     - uses: actions/checkout@v2
 
     #- name: Cache vagrant boxes
@@ -21,6 +29,24 @@ jobs:
     #    key: ${{ runner.os }}-vagrant-${{ hashFiles('ansible-roles/Makefile') }}
     #    restore-keys: |
     #      ${{ runner.os }}-vagrant-
+
+    - name: Cache pip download dir
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cache/pip*
+        key: ${{ runner.os }}-pipcache-${{ hashFiles('install-ansible/requirements.in') }}
+        restore-keys: |
+          ${{ runner.os }}-pipcache-
+
+    - name: Cache python libs
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.local
+        key: ${{ runner.os }}-piplibs-${{ hashFiles('install-ansible/requirements.in') }}
+        restore-keys: |
+          ${{ runner.os }}-piplibs-
 
     - name: Install vagrant and packer
       run: |
@@ -52,12 +78,20 @@ jobs:
           qemu-kvm \
           qemu-utils
 
+    - name: Install/build python-based dependencies
+      run: |
+        set -euo pipefail
+        set -x
+
+        cd install-ansible
+        make py_prereqs
+
     - name: run build
       run: |
         set -euo pipefail
         set -x
 
-        cd packer-boxmaker-config
-        make packer-build
+        #cd packer-boxmaker-config
+        #make packer-build
 
 # vim: ts=2 sw=2 et :
