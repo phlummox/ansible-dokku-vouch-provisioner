@@ -1,5 +1,26 @@
 
-.PHONY: packer_build install_packer
+.PHONY: packer-build install_packer \
+   clean print_img_path print_box_name
+
+include ../vars.mk
+
+print_img_path:
+	@echo $(UBUNTU_IMG_PATH)
+
+print_box_name:
+	@echo $(BOX_NAME)
+
+print_box_version:
+	@echo $(BOX_VERSION)
+
+$(UBUNTU_IMG_PATH):
+	vagrant box add \
+	  --provider libvirt \
+	  --box-version $(BASE_BOX_VERSION) \
+	  $(BASE_BOX)
+
+.ubuntu_checksum.md5: $(UBUNTU_IMG_PATH)
+	cat $(UBUNTU_IMG_PATH) | pv | md5sum | awk '{ print $$1; }' > $@
 
 PACKER_VERSION=1.7.0
 PACKER_URL=https://releases.hashicorp.com/packer/$(PACKER_VERSION)/packer_$(PACKER_VERSION)_linux_amd64.zip
@@ -31,42 +52,25 @@ install_vagrant:
 	  sudo apt install $$PWD/$$dir/vagrant.deb; \
 	fi
 
-
-
-PACKER_FILE=dokku.pkr.hcl
-
-BASE_BOX=generic/ubuntu2004
-BASE_BOX_VERSION=3.2.6
-UBUNTU_IMG_PATH=$(HOME)/.vagrant.d/boxes/generic-VAGRANTSLASH-ubuntu2004/$(BASE_BOX_VERSION)/libvirt/box.img
-
-# our versioning
-BOX_VERSION=0.1
-
-print_img_path:
-	echo $(UBUNTU_IMG_PATH)
-
-$(UBUNTU_IMG_PATH):
-	$(MAKE) install_vagrant
-	vagrant box add \
-	  --provider libvirt \
-	  --box-version $(BASE_BOX_VERSION) \
-	  $(BASE_BOX)
-
 # to work out the disk size:
 # we need to run `qemu-img info /path/to/box.img`,
 # and look for a line in the output that says:
 #     virtual size: 128G (137438953472 bytes)
 # or similar.
 
+packer-build: output/$(BOX_NAME)_$(BOX_VERSION).box.md5 \
+	            output/$(BOX_NAME)_$(BOX_VERSION).box \
+	            output/$(BOX_NAME)_$(BOX_VERSION).qcow2
+
 #	export DISK_SIZE=`qemu-img info $(UBUNTU_IMG_PATH) | grep '^virtual size' | sed 's/(//g' | awk '{ print $4; }'`; \
 
-.ubuntu_checksum.md5: $(UBUNTU_IMG_PATH)
-	cat $(UBUNTU_IMG_PATH) | pv | md5sum | awk '{ print $$1; }' > $@
 
-
-packer_build: install_packer \
+output/$(BOX_NAME)_$(BOX_VERSION).box.md5 \
+output/$(BOX_NAME)_$(BOX_VERSION).box \
+output/$(BOX_NAME)_$(BOX_VERSION).qcow2: \
+	                install_packer \
 	                install_vagrant \
-	                $(UBUNTU_IMG_PATH) \
+                        $(UBUNTU_IMG_PATH) \
 	                .ubuntu_checksum.md5
 	@if [ ! -f $(UBUNTU_IMG_PATH) ]; then \
 	  printf 'no box.img found at %s!\n' $(UBUNTU_IMG_PATH); \
@@ -79,4 +83,10 @@ packer_build: install_packer \
 	export PKR_VAR_BOX_VERSION=$(BOX_VERSION); \
 	packer validate $(PACKER_FILE); \
 	PACKER_LOG=1 packer build $(PACKER_FILE)
+
+clean:
+	-rm -rf \
+    .ubuntu_checksum.md5 \
+		output \
+    packer_cache
 
