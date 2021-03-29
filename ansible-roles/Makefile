@@ -25,7 +25,7 @@ SHOULD_USE_VIRTUALENV=$(shell if [ -z "$$CI" ] ; then echo true; else echo false
 ANSIBLE_LIBRARY=$$PWD/../ansible-lib/modules
 ANSIBLE_ACTION_PLUGINS=$$PWD/../ansible-lib/plugins/action
 
-#VERBOSITY=--debug -vvv
+VERBOSITY=--debug -vv
 #VERBOSITY=
 
 TIMER=if which time; then export timer="`which time` -v"; else export timer=""; fi
