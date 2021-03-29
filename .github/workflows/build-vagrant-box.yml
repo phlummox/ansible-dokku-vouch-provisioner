@@ -1,0 +1,63 @@
+name: build-vagrant-box
+
+on: ["push"]
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    env:
+      VAGRANT_VERSION: "2.2.14"
+      LIBVIRT_PLUGIN_VERSION: "0.0.1"
+      PACKER_VERSION: "1.7.0"
+
+    steps:
+
+    - uses: actions/checkout@v2
+
+    #- name: Cache vagrant boxes
+    #  uses: actions/cache@v2
+    #  with:
+    #    path: ~/.vagrant.d/boxes
+    #    key: ${{ runner.os }}-vagrant-${{ hashFiles('ansible-roles/Makefile') }}
+    #    restore-keys: |
+    #      ${{ runner.os }}-vagrant-
+
+    - name: Install vagrant and packer
+      run: |
+        set -euo pipefail
+        set -x
+
+        VAGRANT_URL="https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_x86_64.deb"
+        dir=`mktemp -d tmp-downloaded-vagrant-deb-XXXXX`
+        curl -L "${VAGRANT_URL}" > $dir/vagrant.deb
+        sudo apt install $PWD/$dir/vagrant.deb
+
+        vagrant --version
+
+        PACKER_URL="https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip"
+        wget $PACKER_URL
+        unzip packer_${PACKER_VERSION}_linux_amd64.zip
+        sudo mv packer /usr/local/bin
+
+        packer --version
+
+    - name: Install build dependencies
+      run: |
+        set -euo pipefail
+        set -x
+
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends \
+          pv \
+          qemu-kvm \
+          qemu-utils
+
+    - name: run build
+      run: |
+        set -euo pipefail
+        set -x
+
+        cd packer-boxmaker-config
+        make packer-build
+
+# vim: ts=2 sw=2 et :

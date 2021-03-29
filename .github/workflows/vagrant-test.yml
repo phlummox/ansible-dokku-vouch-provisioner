@@ -1,6 +1,6 @@
 name: vagrant-test
 
-on: ["push"]
+on: []
 
 jobs:
   vagrant-test:
