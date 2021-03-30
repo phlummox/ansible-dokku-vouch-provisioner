@@ -120,7 +120,7 @@ jobs:
         set -euo pipefail
         set -x
 
-        sudo su -l $USER -c "set -ex; export CI=$CI; export PATH=$PATH; cd $PWD/ansible-roles; pwd; make run_tests_libvirt"
+        sudo su -l $USER -c "set -ex; export PY_COLORS=$PY_COLORS; export ANSIBLE_FORCE_COLOR=$ANSIBLE_FORCE_COLOR; export CI=$CI; export PATH=$PATH; cd $PWD/ansible-roles; pwd; make run_tests_libvirt"
 
     #    ## ansible-lint all files
     #    #./lint-the-files.sh
