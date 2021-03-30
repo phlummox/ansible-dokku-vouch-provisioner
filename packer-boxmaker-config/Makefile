@@ -13,6 +13,9 @@ print_box_name:
 print_box_version:
 	@echo $(BOX_VERSION)
 
+print_short_desc:
+	@echo '$(SHORT_DESCRIPTION)'
+
 $(UBUNTU_IMG_PATH):
 	vagrant box add \
 	  --provider libvirt \
@@ -28,6 +31,11 @@ PACKER_URL=https://releases.hashicorp.com/packer/$(PACKER_VERSION)/packer_$(PACK
 # installs packer if it's not on path.
 # Assumes you have ~/.local/bin, and
 # that that's a sensible place to put things
+
+# name used in .hcl file for build, and which therefore ends up in
+# artifact names
+
+BUILD_NAME=ubuntu_dokku
 
 install_packer:
 	@if (which packer) ; then \
@@ -58,19 +66,17 @@ install_vagrant:
 #     virtual size: 128G (137438953472 bytes)
 # or similar.
 
-packer-build: output/$(BOX_NAME)_$(BOX_VERSION).box.md5 \
-	            output/$(BOX_NAME)_$(BOX_VERSION).box \
-	            output/$(BOX_NAME)_$(BOX_VERSION).qcow2
+packer-build: output/$(BUILD_NAME)_$(BOX_VERSION).box.md5 \
+	            output/$(BUILD_NAME)_$(BOX_VERSION).box \
+	            output/$(BUILD_NAME)_$(BOX_VERSION).qcow2
 
 #	export DISK_SIZE=`qemu-img info $(UBUNTU_IMG_PATH) | grep '^virtual size' | sed 's/(//g' | awk '{ print $4; }'`; \
 
 
-output/$(BOX_NAME)_$(BOX_VERSION).box.md5 \
-output/$(BOX_NAME)_$(BOX_VERSION).box \
-output/$(BOX_NAME)_$(BOX_VERSION).qcow2: \
-	                install_packer \
-	                install_vagrant \
-                        $(UBUNTU_IMG_PATH) \
+output/$(BUILD_NAME)_$(BOX_VERSION).box.md5 \
+output/$(BUILD_NAME)_$(BOX_VERSION).box \
+output/$(BUILD_NAME)_$(BOX_VERSION).qcow2: \
+	                $(UBUNTU_IMG_PATH) \
 	                .ubuntu_checksum.md5
 	@if [ ! -f $(UBUNTU_IMG_PATH) ]; then \
 	  printf 'no box.img found at %s!\n' $(UBUNTU_IMG_PATH); \
