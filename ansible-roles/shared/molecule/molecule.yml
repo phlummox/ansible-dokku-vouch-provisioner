@@ -1,14 +1,6 @@
 ---
 dependency:
   name: galaxy
-driver:
-  name: vagrant
-  provider:
-    name: ${PROVIDER_NAME}
-    type: ${PROVIDER_TYPE}
-    options:
-      memory: ${PROVIDER_MEMORY}
-      cpus: 2
 platforms:
   - name: dokku-install-test-vm
     box: ${PLATFORM_BOX}
@@ -22,3 +14,14 @@ provisioner:
 verifier:
   name: goss
   directory: ../resources/tests
+driver:
+  name: vagrant
+  provider:
+    name: ${PROVIDER_NAME}
+    type: ${PROVIDER_TYPE}
+    options:
+      memory: ${PROVIDER_MEMORY}
+      cpus: 2
+      #####
+      management_network_name: vagrant-libvirt-molecule
+      management_network_address: '192.168.127.0/24'

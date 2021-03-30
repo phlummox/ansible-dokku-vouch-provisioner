@@ -9,8 +9,8 @@
 
 SHELL=bash
 
-ROLES_TO_TEST=$(shell find * -mindepth 0 -maxdepth 0 -type d | grep -v shared)
-ROLES_TO_TEST=demo dokku.install dokku.configure dokku.apps.clone-and-push
+#ROLES_TO_TEST=$(shell find * -mindepth 0 -maxdepth 0 -type d | grep -v shared)
+ROLES_TO_TEST=demo dokku.install dokku.configure
 
 # whether to use a virtualenv.
 #
