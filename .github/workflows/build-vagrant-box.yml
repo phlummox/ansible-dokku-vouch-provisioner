@@ -6,9 +6,9 @@ jobs:
   build:
     runs-on: ubuntu-18.04
     env:
-      VAGRANT_VERSION: "2.2.14"
       LIBVIRT_PLUGIN_VERSION: "0.0.1"
       PACKER_VERSION: "1.7.0"
+      VAGRANT_VERSION: "2.2.14"
 
     steps:
 
@@ -80,7 +80,56 @@ jobs:
         set -euo pipefail
         set -x
 
-        #cd packer-boxmaker-config
-        #make packer-build
+        cd packer-boxmaker-config
+        make packer-build
+
+    - name: Extract start of changelog
+      run: |
+        set -euo pipefail
+        set -x
+
+        ./topmost-changelog-sec.sh > release-notes.md
+
+        # show conts
+        grep -n ^ /dev/null release-notes.md
+
+    - name:  Set the release name
+      run: |
+        set -euo pipefail
+        set -x
+
+        release_name=`echo "${{ github.ref }}" | sed 's|^refs/tags/v||'`
+        echo release name is "${release_name}"
+        echo "release_name=${release_name}" >> $GITHUB_ENV
+
+
+    - name:  Show the release name can be read from "env."
+      run: |
+        set -euo pipefail
+        set -x
+
+        echo release name is "${{ env.release_name }}"
+
+    - name: Release (if tagged)
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          output/*
+          vagrant.d.tgz
+        body_path: release-notes.md
+        name: ${{ env.release_name }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Push to vagrant cloud (if tagged)
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        set -euo pipefail
+        set -x
+
+        ./publish.sh
+      env:
+        VAGRANT_CLOUD_TOKEN: ${{ secrets.VAGRANT_CLOUD_TOKEN }}
 
 # vim: ts=2 sw=2 et :
