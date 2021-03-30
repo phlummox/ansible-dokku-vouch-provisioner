@@ -15,7 +15,8 @@ BOX_NAME="$(make print_box_name)"
 BOX_VERSION="$(make print_box_version)"
 PROVIDER_TYPE="libvirt"
 
-false
+SHORT_DESC="$(make print_short_desc)"
+
 
 PATH_TO_BUILT_BOX="$(find output/ -name '*.box')"
 
@@ -25,7 +26,10 @@ curl https://vagrantcloud.com/api/v1/boxes \
         -d "access_token=$VAGRANT_CLOUD_TOKEN" \
         -d "box[username]=$AUTHOR" \
         -d "box[name]=$BOX_NAME" \
-        -d "box[is_private]=false"
+        -d "box[is_private]=false" \
+        -d "box[short_description]=$SHORT_DESC" \
+        --data-binary $'box[description]=Dokku installed on ubuntu 20.04\n
+Built from github repo at https://github.com/phlummox/ansible-dokku-vouch-provisioner\n'
 
 echo "ensuring vagrant-cloud box named $AUTHOR/$BOX_NAME has version $BOX_VERSION created"
 curl "https://vagrantcloud.com/api/v1/box/$AUTHOR/$BOX_NAME/versions" \

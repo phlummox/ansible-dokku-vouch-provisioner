@@ -15,3 +15,4 @@ UBUNTU_IMG_PATH=$(HOME)/.vagrant.d/boxes/generic-VAGRANTSLASH-$(BASE_BOX_NAME)/$
 # name for our built box
 BOX_NAME=ubuntu-dokku
 
+SHORT_DESCRIPTION=Dokku installed on Ubuntu 20.04
