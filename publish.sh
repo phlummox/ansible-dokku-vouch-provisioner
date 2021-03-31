@@ -10,6 +10,8 @@
 set -euo pipefail
 set -x
 
+cd packer-boxmaker-config
+
 AUTHOR="$(grep '"Author":' templates/info.json | awk '{ print $2; }' | sed ' s/"//g; s/,//g; ')"
 BOX_NAME="$(make print_box_name)"
 BOX_VERSION="$(make print_box_version)"
