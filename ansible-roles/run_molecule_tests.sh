@@ -25,6 +25,12 @@ if [ "$#" -ne 1 ]; then
   exit 1;
 fi
 
+MAGENTA='[35m'
+RESET='[0m'
+
+printf '%s== RUN_MOLECULE_TESTS==%s\n' "$MAGENTA" "$RESET"
+
+echo PATH is: $PATH
 
 run_role() {
   if [ "$#" -ne 2 ]; then
@@ -74,6 +80,12 @@ else
   (cd ../install-ansible; make py_prereqs);
   set +x
 fi;
+
+# add color - for some reason these env
+# vars don't seem to be picked up from
+# CI
+export PY_COLORS=1
+export ANSIBLE_FORCE_COLOR=1
 
 molecule --version;
 
