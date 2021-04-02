@@ -30,14 +30,13 @@ curl https://vagrantcloud.com/api/v1/boxes \
         -d "box[name]=$BOX_NAME" \
         -d "box[is_private]=false" \
         -d "box[short_description]=$SHORT_DESC" \
-        --data-binary $'box[description]=Dokku installed on ubuntu 20.04\n
-Built from github repo at https://github.com/phlummox/ansible-dokku-vouch-provisioner\n'
+        --data-binary "$(make -f publish.mk print_box_desc)"
 
 echo "ensuring vagrant-cloud box named $AUTHOR/$BOX_NAME has version $BOX_VERSION created"
 curl "https://vagrantcloud.com/api/v1/box/$AUTHOR/$BOX_NAME/versions" \
         -X POST \
         -d "version[version]=$BOX_VERSION" \
-        -d "version[description]=new version" \
+        --data-binary "version[description]=Version $BOX_VERSION. $(make -f publish.mk print_box_desc) See <https://github.com/phlummox/ansible-dokku-vouch-provisioner/releases/tag/v$BOX_VERSION>" \
         -d access_token="$VAGRANT_CLOUD_TOKEN"
 
 echo "ensuring vagrant-cloud box named $AUTHOR/$BOX_NAME has ${PROVIDER_TYPE} provider created"
@@ -61,7 +60,7 @@ echo "releasing version $BOX_VERSION of $AUTHOR/$BOX_NAME $PROVIDER_TYPE"
 curl \
   --progress-bar \
   --verbose \
-  https://vagrantcloud.com/api/v1/box/$AUTHOR/$BOX_NAME/version/$BOX_VERSION/release -X PUT -d access_token="$VAGRANT_CLOUD_TOKEN" > release_result
+  "https://vagrantcloud.com/api/v1/box/$AUTHOR/$BOX_NAME/version/$BOX_VERSION/release" -X PUT -d access_token="$VAGRANT_CLOUD_TOKEN" > release_result
 
 cat -n release_result
 
