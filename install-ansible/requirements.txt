@@ -97,7 +97,7 @@ packaging==20.9
     #   ansible-core
     #   ansible-lint
     #   molecule
-paramiko==2.7.2
+paramiko==2.10.1
     # via molecule
 pathspec==0.8.1
     # via yamllint
@@ -142,10 +142,8 @@ rich==9.11.1
     #   ansible-lint
     #   enrich
     #   molecule
-ruamel.yaml==0.17.16
+ruamel-yaml==0.17.16
     # via ansible-lint
-ruamel.yaml.clib==0.2.6
-    # via ruamel.yaml
 selinux==0.2.1
     # via
     #   molecule
@@ -159,6 +157,7 @@ six==1.15.0
     #   click-completion
     #   cookiecutter
     #   docker
+    #   paramiko
     #   pynacl
     #   python-dateutil
     #   websocket-client
