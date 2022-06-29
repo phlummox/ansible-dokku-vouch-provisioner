@@ -30,13 +30,15 @@ curl -L "${VAGRANT_URL}" > $dir/vagrant.deb
 sudo apt install $PWD/$dir/vagrant.deb
 
 sudo apt install -y --no-install-recommends \
+    curl                        \
     gcc                         \
     libvirt-bin                 \
     libvirt-dev                 \
     make                        \
     openssh-client              \
-    python3-pip                 \
     pv                          \
+    python3.8-dev               \
+    python3.8-distutils         \
     qemu-kvm                    \
     qemu-utils                  \
     sshpass                     \
@@ -52,9 +54,12 @@ SYSTEMD_COLORS=1 systemctl --no-pager status libvirtd  | cat
 sudo adduser $USER libvirt
 sudo adduser $USER kvm
 
-python3 .ci-scripts/get-pip.py
+# script got via
+#   curl https://bootstrap.pypa.io/get-pip.py
+# as at 2022-06-29
+python3.8 .ci-scripts/get-pip.py
 
-pip3 install --user --upgrade \
+python3.8 -m pip install --user --upgrade \
     pip         \
     pip-tools   \
     virtualenv  \
@@ -63,7 +68,7 @@ pip3 install --user --upgrade \
 : "check tool versions"
 
 gcc     --version
-pip3    --version
+python3.8 -m pip    --version
 python3 --version
 ssh     -V
 vagrant --version
