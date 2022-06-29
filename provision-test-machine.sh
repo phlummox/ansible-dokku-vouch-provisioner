@@ -18,7 +18,6 @@ if [ -z "$CI" ] ; then
   CI=""
 fi
 
-
 set -eou pipefail
 
 sudo apt-get update
