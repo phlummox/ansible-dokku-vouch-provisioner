@@ -1,6 +1,6 @@
 
 env:
-	pip3 install --user --upgrade virtualenv pip wheel
+	python3.8 -m pip install --user --upgrade virtualenv pip wheel
 	virtualenv env
 
 ACTIVATE=\
@@ -17,9 +17,9 @@ py_prereqs:
 	else \
 		pip_flags="--user"; \
 	fi; \
-	pip3 install $$pip_flags --upgrade pip wheel; \
-	pip3 install $$pip_flags --upgrade pip-tools; \
+	python3.8 -m pip install $$pip_flags --upgrade pip wheel; \
+	python3.8 -m pip install $$pip_flags --upgrade pip-tools; \
 	pip-compile --version; \
 	pip-compile requirements.in; \
-	pip3 install $$pip_flags -r requirements.txt
+	python3.8 -m pip install $$pip_flags -r requirements.txt
 
