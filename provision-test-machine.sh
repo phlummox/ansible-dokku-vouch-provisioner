@@ -22,6 +22,8 @@ fi
 
 set -eou pipefail
 
+sudo apt-get update
+
 VAGRANT_URL="https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_x86_64.deb"
 dir=`mktemp -d tmp-downloaded-vagrant-deb-XXXXX`
 curl -L "${VAGRANT_URL}" > $dir/vagrant.deb
