@@ -104,19 +104,24 @@ jobs:
         ANSIBLE_FORCE_COLOR: '1'
       run: |
         set -x
+
+        # virtualbox
         mkdir nested-vm
         cp .ci-scripts/nested/Vagrantfile nested-vm
         cd nested-vm
         vagrant up --provider virtualbox
-        #export PATH=~/.local/bin:$PATH
-        #brew install gnu-time
-        #export PATH="$(brew --prefix)/opt/gnu-time/libexec/gnubin:$PATH"
-        #ls -al ~/.local/lib/python*/site-packages/ || true
-        #set -euo pipefail
-        #curr_dir=$PWD
-        #cd ansible-roles
-        #make run_tests_vbx
-        #cd $curr_dir
+
+        # gnu time, on MacOS
+        export PATH=~/.local/bin:$PATH
+        brew install gnu-time
+        export PATH="$(brew --prefix)/opt/gnu-time/libexec/gnubin:$PATH"
+        `which time` --version
+        ls -al ~/.local/lib/python*/site-packages/ || true
+
+        set -euo pipefail
+        pushd ansible-roles
+        make run_tests_vbx
+        popd
 
         ## ansible-lint all files
         #./lint-the-files.sh
