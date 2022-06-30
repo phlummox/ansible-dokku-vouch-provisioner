@@ -19,6 +19,8 @@
 #   ROLES_TO_TEST - which roles to test
 #   VERBOSITY - some verbosity args (or undefined/empty string)
 #     which can be passed to molecule.
+#   PYTHON3 - name of a python3 command to run (e.g. "python3.8")
+#     (passed to `make py_prereqs`)
 
 if [ "$#" -ne 1 ]; then
   printf 'Expected 1 arg, a vagrant provider.\n' >&2
@@ -77,7 +79,7 @@ else
   fi
   echo "installing python prereqs ..."
   set -x
-  (cd ../install-ansible; make py_prereqs);
+  (cd ../install-ansible; make PYTHON3=$PYTHON3 py_prereqs);
   set +x
 fi;
 

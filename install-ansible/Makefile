@@ -1,6 +1,11 @@
 
+# default version of python3 to use
+# override using `make PYTHON3=<some-other-version>`
+# to use another.
+PYTHON3=python3.8
+
 env:
-	python3.8 -m pip install --user --upgrade virtualenv pip wheel
+	$(PYTHON3) -m pip install --user --upgrade virtualenv pip wheel
 	virtualenv env
 
 ACTIVATE=\
@@ -17,9 +22,9 @@ py_prereqs:
 	else \
 		pip_flags="--user"; \
 	fi; \
-	python3.8 -m pip install $$pip_flags --upgrade pip wheel; \
-	python3.8 -m pip install $$pip_flags --upgrade pip-tools; \
+	$(PYTHON3) -m pip install $$pip_flags --upgrade pip wheel; \
+	$(PYTHON3) -m pip install $$pip_flags --upgrade pip-tools; \
 	pip-compile --version; \
 	pip-compile requirements.in; \
-	python3.8 -m pip install $$pip_flags -r requirements.txt
+	$(PYTHON3) -m pip install $$pip_flags -r requirements.txt
 

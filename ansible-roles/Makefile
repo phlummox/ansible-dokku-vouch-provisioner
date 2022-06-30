@@ -5,6 +5,11 @@
 	install_vagrant_dokku_box
 
 
+# default version of python3 to use
+# override using `make PYTHON3=<some-other-version>`
+# to use another.
+PYTHON3=python3.8
+
 # run tests
 
 SHELL=bash
@@ -83,6 +88,7 @@ run_tests_vbx:
 	export VAGRANT_DOKKU_BOX="$(VAGRANT_DOKKU_BOX)"; \
 	export ROLES_TO_TEST="$(ROLES_TO_TEST)"; \
 	export VERBOSITY="$(VERBOSITY)"; \
+	export PYTHON3="$(PYTHON3)"; \
 	$(TIMER); \
 	$$timer ./run_molecule_tests.sh virtualbox
 
@@ -98,6 +104,7 @@ run_tests_libvirt:
 	export VAGRANT_DOKKU_BOX="$(VAGRANT_DOKKU_BOX)"; \
 	export ROLES_TO_TEST="$(ROLES_TO_TEST)"; \
 	export VERBOSITY="$(VERBOSITY)"; \
+	export PYTHON3="$(PYTHON3)"; \
 	$(TIMER); \
 	$$timer ./run_molecule_tests.sh libvirt
 
