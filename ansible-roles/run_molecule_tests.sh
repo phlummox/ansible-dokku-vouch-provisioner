@@ -89,10 +89,7 @@ fi;
 export PY_COLORS=1
 export ANSIBLE_FORCE_COLOR=1
 
-set -vx
-declare -p
-
-#molecule --version;
+molecule --version;
 
 if [ "$PLATFORM_BOX" = "$VAGRANT_DOKKU_BOX" ] ; then
   make install_vagrant_dokku_box;

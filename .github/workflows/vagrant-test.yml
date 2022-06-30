@@ -44,7 +44,7 @@ jobs:
 
     - uses: actions/setup-python@v2
       with:
-        python-version: '3.8'
+        python-version: '3.9'
         # architecture: 'x64' # Defaults to x64
 
     - name: Show tool versions
@@ -103,9 +103,7 @@ jobs:
         PY_COLORS: '1'
         ANSIBLE_FORCE_COLOR: '1'
       run: |
-        set -vx
-
-        # virtualbox
+        set -x
         mkdir nested-vm
         cp .ci-scripts/nested/Vagrantfile nested-vm
         pushd nested-vm
@@ -121,7 +119,7 @@ jobs:
 
         set -euo pipefail
         pushd ansible-roles
-        make PYTHON3=python3.8 run_tests_vbx
+        make PYTHON3=python3.9 run_tests_vbx
         popd
 
         ## ansible-lint all files

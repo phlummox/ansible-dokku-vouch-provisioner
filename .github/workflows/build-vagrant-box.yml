@@ -1,5 +1,10 @@
 name: build-vagrant-box
 
+# build a vagrant box with Dokku installed:
+# this (a) gives the ansible role a useful workout, and
+# (b) as a useful byproduct, gives us a vagrant
+# box with Dokku installed.
+
 on:
   push:
     paths-ignore:
