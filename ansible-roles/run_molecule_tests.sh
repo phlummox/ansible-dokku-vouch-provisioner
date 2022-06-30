@@ -41,14 +41,27 @@ run_role() {
   fi
   local provider=$1
   local role=$2
+
+  printf '%s== RUN MOLECULE TESTS FOR ROLE %s ==%s\n' "$MAGENTA" "$role" "$RESET"
+
   set -x;
+  set -v;
 
   if [ "$role" = "dokku.apps.clone-and-push" ]; then
     VERBOSITY="--debug -vvv"
   fi
 
+  which molecule
+
+  ls -alt `which molecule`
+
+  head -v /dev/null `which molecule`
+
+  printf '*********\n'
+
   (cd "$role" && PROVIDER_NAME="$provider" PROVIDER_TYPE="$provider" molecule $VERBOSITY test --scenario-name default-scenario 2>&1 | sed "s/^/$role:/"; )
-  set +x
+  set +x;
+  set +v;
 }
 
 run_all_roles() {
