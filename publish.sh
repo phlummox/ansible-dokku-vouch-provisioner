@@ -7,12 +7,23 @@
 # expects VAGRANT_CLOUD_TOKEN
 # env var to be set in calling environmnent.
 
-set -euo pipefail
+set -e
 set -x
+
+cd packer-boxmaker-config
+
+# if set (e.g. cos running in github CI),
+# take box version from ${release_name}
+if [ -n "$release_name" ] ; then
+  BOX_VERSION="${release_name}";
+else
+  BOX_VERSION="$(make print_box_version)";
+fi
+
+set -uo pipefail
 
 AUTHOR="$(grep '"Author":' templates/info.json | awk '{ print $2; }' | sed ' s/"//g; s/,//g; ')"
 BOX_NAME="$(make print_box_name)"
-BOX_VERSION="$(make print_box_version)"
 PROVIDER_TYPE="libvirt"
 
 SHORT_DESC="$(make print_short_desc)"
@@ -28,14 +39,13 @@ curl https://vagrantcloud.com/api/v1/boxes \
         -d "box[name]=$BOX_NAME" \
         -d "box[is_private]=false" \
         -d "box[short_description]=$SHORT_DESC" \
-        --data-binary $'box[description]=Dokku installed on ubuntu 20.04\n
-Built from github repo at https://github.com/phlummox/ansible-dokku-vouch-provisioner\n'
+        --data-binary "$(make print_desc)"
 
 echo "ensuring vagrant-cloud box named $AUTHOR/$BOX_NAME has version $BOX_VERSION created"
 curl "https://vagrantcloud.com/api/v1/box/$AUTHOR/$BOX_NAME/versions" \
         -X POST \
         -d "version[version]=$BOX_VERSION" \
-        -d "version[description]=new version" \
+        --data-binary "version[description]=Version $BOX_VERSION. $(make print_desc) See <https://github.com/phlummox/ansible-dokku-vouch-provisioner/releases/tag/v$BOX_VERSION>" \
         -d access_token="$VAGRANT_CLOUD_TOKEN"
 
 echo "ensuring vagrant-cloud box named $AUTHOR/$BOX_NAME has ${PROVIDER_TYPE} provider created"
@@ -59,7 +69,7 @@ echo "releasing version $BOX_VERSION of $AUTHOR/$BOX_NAME $PROVIDER_TYPE"
 curl \
   --progress-bar \
   --verbose \
-  https://vagrantcloud.com/api/v1/box/$AUTHOR/$BOX_NAME/version/$BOX_VERSION/release -X PUT -d access_token="$VAGRANT_CLOUD_TOKEN" > release_result
+  "https://vagrantcloud.com/api/v1/box/$AUTHOR/$BOX_NAME/version/$BOX_VERSION/release" -X PUT -d access_token="$VAGRANT_CLOUD_TOKEN" > release_result
 
 cat -n release_result
 

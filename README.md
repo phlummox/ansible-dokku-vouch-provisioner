@@ -25,10 +25,10 @@ welcome to make use of the code if they find it useful.
 
 ## Prerequisites
 
-python >= 3.6.
+python >= 3.7.
 
-On Ubuntu 16.04, you will likely need to install an additional version of
-python, the default is only 3.5 I think.
+On versions of Ubuntu earlier than 20.04, you will likely need to
+install an additional version of python.
 
 The ansible-roles Makefile calls gnu `time`; on MacOS X, install it
 with `brew install gnu-time` (and then fix your PATH so it can be

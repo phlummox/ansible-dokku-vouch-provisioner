@@ -27,7 +27,7 @@
           return 410;
       }
 
-- name: restart nginx if meeded # noqa no-handler
+- name: restart nginx if needed # noqa no-handler
   when: create_default_website.changed
   service:
     name: nginx

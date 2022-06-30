@@ -16,3 +16,10 @@ UBUNTU_IMG_PATH=$(HOME)/.vagrant.d/boxes/generic-VAGRANTSLASH-$(BASE_BOX_NAME)/$
 BOX_NAME=ubuntu-dokku
 
 SHORT_DESCRIPTION=Dokku installed on Ubuntu 20.04
+
+# markdown fragment
+DESCRIPTION=\
+$$'Dokku installed on Ubuntu 20.04\ \n\
+Built from github repo at https://github.com/phlummox/ansible-dokku-vouch-provisioner\ \n'
+
+

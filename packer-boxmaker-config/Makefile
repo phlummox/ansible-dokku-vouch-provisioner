@@ -2,6 +2,8 @@
 .PHONY: packer-build install_packer \
    clean print_img_path print_box_name
 
+SHELL=bash
+
 include ../vars.mk
 
 print_img_path:
@@ -15,6 +17,9 @@ print_box_version:
 
 print_short_desc:
 	@echo '$(SHORT_DESCRIPTION)'
+
+print_desc:
+	@printf '%s' $(DESCRIPTION)
 
 $(UBUNTU_IMG_PATH):
 	vagrant box add \

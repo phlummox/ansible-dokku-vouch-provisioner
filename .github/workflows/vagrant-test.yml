@@ -1,10 +1,13 @@
 name: vagrant-test
 
-# try to disable this workflow for the mo
 on:
   push:
-    tags:
-      - "zzz*"
+# can disable this workflow by changing tags to
+# something unlikely:
+    #tags:
+    #  - "zzz*"
+    paths-ignore:
+      - '**/README.md'
 
 jobs:
   vagrant-test:
