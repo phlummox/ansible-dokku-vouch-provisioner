@@ -103,7 +103,7 @@ jobs:
         PY_COLORS: '1'
         ANSIBLE_FORCE_COLOR: '1'
       run: |
-        set -x
+        set -vx
 
         # virtualbox
         mkdir nested-vm
