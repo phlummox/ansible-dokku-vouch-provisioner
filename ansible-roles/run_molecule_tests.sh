@@ -55,7 +55,7 @@ run_role() {
 
   ls -alt `which molecule`
 
-  head -v /dev/null `which molecule`
+  head  /dev/null `which molecule`
 
   printf '*********\n'
 
