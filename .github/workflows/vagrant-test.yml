@@ -108,8 +108,9 @@ jobs:
         # virtualbox
         mkdir nested-vm
         cp .ci-scripts/nested/Vagrantfile nested-vm
-        cd nested-vm
+        pushd nested-vm
         vagrant up --provider virtualbox
+        popd
 
         # gnu time, on MacOS
         export PATH=~/.local/bin:$PATH
