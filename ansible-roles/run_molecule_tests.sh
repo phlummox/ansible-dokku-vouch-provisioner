@@ -90,6 +90,8 @@ export PY_COLORS=1
 export ANSIBLE_FORCE_COLOR=1
 
 set -x
+declare -p
+
 molecule --version;
 
 if [ "$PLATFORM_BOX" = "$VAGRANT_DOKKU_BOX" ] ; then
