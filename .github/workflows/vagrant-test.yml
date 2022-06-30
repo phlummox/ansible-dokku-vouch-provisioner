@@ -42,15 +42,20 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-python-
 
-    - uses: actions/setup-python@v2
-      with:
-        python-version: '3.8'
-        # architecture: 'x64' # Defaults to x64
+    #- uses: actions/setup-python@v2
+    #  with:
+    #    python-version: '3.8'
+    #    # architecture: 'x64' # Defaults to x64
+    - name: install python 3.8
+      run: |
+        brew install python@3.8
+        export PATH=$(brew --prefix)/opt/python@3.8/bin:$PATH
 
     - name: Show tool versions
       run: |
         set -euo pipefail
         set -x
+        export PATH=$(brew --prefix)/opt/python@3.8/bin:$PATH
         vagrant --version
         python --version
         python3 --version
@@ -104,6 +109,7 @@ jobs:
         ANSIBLE_FORCE_COLOR: '1'
       run: |
         set -x
+        export PATH=$(brew --prefix)/opt/python@3.8/bin:$PATH
         mkdir nested-vm
         cp .ci-scripts/nested/Vagrantfile nested-vm
         pushd nested-vm
