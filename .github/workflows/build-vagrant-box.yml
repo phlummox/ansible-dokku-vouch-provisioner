@@ -4,6 +4,10 @@ on:
   push:
     paths-ignore:
       - '**/README.md'
+# can disable this workflow by changing tags to
+# something unlikely:
+    tags:
+      - "zzz*"
 
 jobs:
   build:

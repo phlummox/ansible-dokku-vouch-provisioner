@@ -17,11 +17,11 @@ Vagrant.configure("2") do |config|
 
   config.vm.provider "virtualbox" do |prov|
     # Enable KVM nested virtualization
-    prov.nested = true
-    prov.cpu_mode = "host-model"
+    #prov.nested = true
+    #prov.cpu_mode = "host-model"
     prov.memory = "2048"
-    prov.management_network_name = 'vagrant-prov-new'
-    prov.management_network_address = '192.168.124.0/24'
+    #prov.management_network_name = 'vagrant-prov-new'
+    #prov.management_network_address = '192.168.124.0/24'
   end
 
   # View the documentation for the provider you are using for more
