@@ -19,7 +19,7 @@ Vagrant.configure("2") do |config|
     # Enable KVM nested virtualization
     #prov.nested = true
     #prov.cpu_mode = "host-model"
-    prov.memory = "2048"
+    prov.memory = "1536"
     #prov.management_network_name = 'vagrant-prov-new'
     #prov.management_network_address = '192.168.124.0/24'
   end
@@ -33,10 +33,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
      set -ex
      sudo apt-get update
-     VAGRANT_VERSION="2.2.14"
-     curl -L https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_x86_64.deb > vagrant.deb
-      sudo apt install $PWD/vagrant.deb
-      sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt-get install \
+     sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt-get install \
     -y --no-install-recommends \
         apt-transport-https         \
         bridge-utils                \
@@ -46,14 +43,10 @@ Vagrant.configure("2") do |config|
         curl                        \
         git                         \
         libguestfs-tools            \
-        libvirt-bin                 \
-        libvirt-dev                 \
         libxml2-dev                 \
         libxslt-dev                 \
         locales                     \
         make                        \
-        qemu-kvm                    \
-        ruby-dev                    \
         software-properties-common  \
         sudo                        \
         tar                         \
@@ -62,7 +55,5 @@ Vagrant.configure("2") do |config|
         xz-utils                    \
         zlib1g-dev                  \
         zip'
-      CONFIGURE_ARGS="with-libvirt-include=/usr/include/libvirt with-libvirt-lib=/usr/lib"     vagrant --debug plugin install --verbose         vagrant-libvirt
-      sudo adduser $USER libvirt
   SHELL
 end
