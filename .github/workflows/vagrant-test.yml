@@ -59,7 +59,7 @@ jobs:
         vagrant --version
         python --version
         python3 --version
-        pip --version
+        python3 -m pip --version
         vboxmanage --version
         brew --version
 
