@@ -1,4 +1,3 @@
-ansible-lint
 ansible
 flake8
 molecule

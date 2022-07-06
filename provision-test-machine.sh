@@ -35,8 +35,6 @@ sudo apt install -y --no-install-recommends \
     make                        \
     openssh-client              \
     pv                          \
-    python3.8-dev               \
-    python3.8-distutils         \
     qemu-kvm                    \
     qemu-utils                  \
     sshpass                     \

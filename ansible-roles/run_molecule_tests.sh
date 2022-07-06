@@ -60,8 +60,7 @@ run_role() {
   printf '*********\n'
 
   (cd "$role" && PROVIDER_NAME="$provider" PROVIDER_TYPE="$provider" molecule $VERBOSITY test --scenario-name default-scenario 2>&1 | sed "s/^/$role:/"; )
-  set +x;
-  set +v;
+  set +x
 }
 
 run_all_roles() {

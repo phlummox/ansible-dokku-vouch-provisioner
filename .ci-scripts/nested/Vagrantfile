@@ -19,7 +19,7 @@ Vagrant.configure("2") do |config|
     # Enable KVM nested virtualization
     #prov.nested = true
     #prov.cpu_mode = "host-model"
-    prov.memory = "1536"
+    prov.memory = "1500"
     #prov.management_network_name = 'vagrant-prov-new'
     #prov.management_network_address = '192.168.124.0/24'
   end
@@ -33,27 +33,25 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
      set -ex
      sudo apt-get update
+     sudo apt remove -y man-db --purge
+     sudo rm -rf /usr/share/locale/
+     sudo rm -rf /usr/share/man/
+     sudo rm -rf /usr/share/doc/
      sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt-get install \
     -y --no-install-recommends \
         apt-transport-https         \
-        bridge-utils                \
         build-essential             \
         bzip2                       \
         ca-certificates             \
         curl                        \
         git                         \
-        libguestfs-tools            \
-        libxml2-dev                 \
-        libxslt-dev                 \
         locales                     \
         make                        \
-        software-properties-common  \
         sudo                        \
         tar                         \
         unzip                       \
         wget                        \
         xz-utils                    \
-        zlib1g-dev                  \
         zip'
   SHELL
 end

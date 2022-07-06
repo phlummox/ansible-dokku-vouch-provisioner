@@ -6,13 +6,17 @@ PYTHON3=python3.8
 
 env:
 	$(PYTHON3) -m pip install --user --upgrade virtualenv pip wheel
-	virtualenv env
+	$(PYTHON3) -m venv env
 
 ACTIVATE=\
 	activate=env/bin/activate; \
 	if [ -f "$$activate" ] ; then \
 		. $$activate; \
 	fi
+
+# to regenerate requirements.txt:
+# activate the env, and run
+#	  `pip-compile requirements.in`
 
 py_prereqs:
 	set -ex; \
@@ -25,6 +29,5 @@ py_prereqs:
 	$(PYTHON3) -m pip install $$pip_flags --upgrade pip wheel; \
 	$(PYTHON3) -m pip install $$pip_flags --upgrade pip-tools; \
 	pip-compile --version; \
-	pip-compile requirements.in; \
 	$(PYTHON3) -m pip install $$pip_flags -r requirements.txt
 
